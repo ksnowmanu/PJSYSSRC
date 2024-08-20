@@ -65,5 +65,6 @@ export const siteConfig = {
     docs: "https://nextui.org",
     discord: "https://discord.gg/9b6yyZKmH4",
     sponsor: "https://patreon.com/jrgarciadev",
+    youtube: "https://www.youtube.com/results?search_query=%E3%83%AD%E3%83%BC%E3%83%AA%E3%82%A8+%E3%83%88%E3%83%AC%E3%82%AB",
   },
 };

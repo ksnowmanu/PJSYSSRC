@@ -24,6 +24,7 @@ import {
   HeartFilledIcon,
   SearchIcon,
   Logo,
+  YoutubeIcon,
 } from "@/components/icons";
 
 export const Navbar = () => {
@@ -82,6 +83,9 @@ export const Navbar = () => {
         <NavbarItem className="hidden sm:flex gap-2">
           <Link isExternal aria-label="Twitter" href={siteConfig.links.twitter}>
             <TwitterIcon className="text-default-500" />
+          </Link>
+          <Link isExternal aria-label="Youtube" href={siteConfig.links.youtube}>
+            <YoutubeIcon className="text-default-500" />
           </Link>
           <Link isExternal aria-label="Discord" href={siteConfig.links.discord}>
             <DiscordIcon className="text-default-500" />
