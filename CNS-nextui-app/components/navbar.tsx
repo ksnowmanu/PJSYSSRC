@@ -25,6 +25,7 @@ import {
   SearchIcon,
   Logo,
   YoutubeIcon,
+  TwitterXIcon,
 } from "@/components/icons";
 
 export const Navbar = () => {
@@ -81,8 +82,8 @@ export const Navbar = () => {
         justify="end"
       >
         <NavbarItem className="hidden sm:flex gap-2">
-          <Link isExternal aria-label="Twitter" href={siteConfig.links.twitter}>
-            <TwitterIcon className="text-default-500" />
+          <Link isExternal aria-label="TwitterX" href={siteConfig.links.twitterX}>
+            <TwitterXIcon className="text-default-500" />
           </Link>
           <Link isExternal aria-label="Youtube" href={siteConfig.links.youtube}>
             <YoutubeIcon className="text-default-500" />
