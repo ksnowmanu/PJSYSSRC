@@ -52,13 +52,16 @@ export const Navbar = () => {
 
   return (
     <NextUINavbar maxWidth="xl" position="sticky">
+      {/* XXXX */}
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
+        {/* サイトロゴ・名称 */}
         <NavbarBrand as="li" className="gap-3 max-w-fit">
           <NextLink className="flex justify-start items-center gap-1" href="/">
             <Logo />
             <p className="font-bold text-inherit">ACME</p>
           </NextLink>
         </NavbarBrand>
+        {/* リンクアイテム */}
         <ul className="hidden lg:flex gap-4 justify-start ml-2">
           {siteConfig.navItems.map((item) => (
             <NavbarItem key={item.href}>
@@ -77,6 +80,7 @@ export const Navbar = () => {
         </ul>
       </NavbarContent>
 
+      {/* 表示対象を画面サイズ別に制御 */}
       <NavbarContent
         className="hidden sm:flex basis-1/5 sm:basis-full"
         justify="end"
@@ -111,6 +115,7 @@ export const Navbar = () => {
         </NavbarItem>
       </NavbarContent>
 
+      {/* 最小画面サイズで表示するものを定義 */}
       <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
           <Link isExternal aria-label="TwitterX" href={siteConfig.links.twitterX}>
             <TwitterXIcon className="text-default-500" />
