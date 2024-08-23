@@ -1,3 +1,5 @@
+import * as React from "react";
+import {NextUIProvider} from "@nextui-org/react";
 import {
   Navbar as NextUINavbar,
   NavbarContent,
@@ -58,6 +60,7 @@ export const Navbar = () => {
   );
 
   return (
+    <NextUIProvider>
     <NextUINavbar maxWidth="xl" position="sticky">
       {/* XXXX */}
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
@@ -176,5 +179,6 @@ export const Navbar = () => {
         </div>
       </NavbarMenu>
     </NextUINavbar>
+    </NextUIProvider>
   );
 };
