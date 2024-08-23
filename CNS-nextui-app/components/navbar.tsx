@@ -1,4 +1,5 @@
 import * as React from "react";
+import { createContext } from 'react'
 import {
   NextUIProvider,
   Navbar as NextUINavbar,
@@ -58,6 +59,7 @@ import {
 } from "@/components/icons";
 
 export const Navbar = () => {
+  const Context = createContext('use client')
   const searchInput = (
     <Input
       aria-label="Search"
