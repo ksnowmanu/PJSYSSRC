@@ -11,9 +11,8 @@ import {
   Dropdown,
   DropdownTrigger,
   DropdownMenu,
-  DropdownSection,
   DropdownItem
-} from "@nextui-org/react";
+} from "@nextui-org/dropdown";
 import { Avatar } from "@nextui-org/avatar";
 import { Button } from "@nextui-org/button";
 import { Kbd } from "@nextui-org/kbd";
