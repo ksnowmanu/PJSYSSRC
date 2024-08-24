@@ -1,6 +1,5 @@
 import * as React from "react";
-import { createContext } from 'react';
-import {
+import {/*
   NextUIProvider,
   Navbar as NextUINavbar,
   NavbarContent,
@@ -20,7 +19,7 @@ import {
   Input,
 } from "@nextui-org/react";
 {/*
-import {
+import {*/
   Navbar as NextUINavbar,
   NavbarContent,
   NavbarMenu,
@@ -40,7 +39,6 @@ import { Button } from "@nextui-org/button";
 import { Kbd } from "@nextui-org/kbd";
 import { Link } from "@nextui-org/link";
 import { Input } from "@nextui-org/input";
-*/}
 import { avatar, link as linkStyles } from "@nextui-org/theme";
 import NextLink from "next/link";
 import clsx from "clsx";
@@ -59,7 +57,6 @@ import {
 } from "@/components/icons";
 
 export const Navbar = () => {
-  const Context = createContext('use client')
   const searchInput = (
     <Input
       aria-label="Search"
@@ -82,7 +79,6 @@ export const Navbar = () => {
   );
 
   return (
-    <NextUIProvider>
     <NextUINavbar maxWidth="xl" position="sticky">
       {/* XXXX */}
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
@@ -201,6 +197,5 @@ export const Navbar = () => {
         </div>
       </NavbarMenu>
     </NextUINavbar>
-    </NextUIProvider>
   );
 };
