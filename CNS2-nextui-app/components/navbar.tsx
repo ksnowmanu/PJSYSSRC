@@ -35,6 +35,7 @@ import {
   Logo,
   UserCircleIcon,
   HelpDocsIcon,
+  SupportIcon,
 } from "@/components/icons";
 
 export const Navbar = () => {
@@ -94,7 +95,7 @@ export const Navbar = () => {
         <DropdownItem key="profile" className="h-14 gap-2" startContent={<UserCircleIcon/>} showDivider>マイページ</DropdownItem>
         <DropdownItem key="settings" className="h-14 gap-2" startContent={<ThemeSwitch />} showDivider>表示モード切替</DropdownItem>
         <DropdownItem key="help_docs" className="h-14 gap-2" startContent={<HelpDocsIcon />}>ヘルプ</DropdownItem>
-        <DropdownItem key="support">XXXX</DropdownItem>
+        <DropdownItem key="support" className="h-14 gap-2" startContent={<SupportIcon />}>サポート</DropdownItem>
       </DropdownMenu>
     </Dropdown>
   );
@@ -106,7 +107,7 @@ export const Navbar = () => {
         <NavbarBrand className="gap-3 max-w-fit">
           <NextLink className="flex justify-start items-center gap-1" href="/">
             <Logo />
-            <p className="font-bold text-inherit">ACME</p>
+            <p className="font-bold text-inherit">ACME@</p>
           </NextLink>
         </NavbarBrand>
         <div className="hidden lg:flex gap-4 justify-start ml-2">
