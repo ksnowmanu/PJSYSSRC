@@ -283,3 +283,63 @@ export const SupportIcon: React.FC<IconSvgProps> = ({
     <svg xmlns="http://www.w3.org/2000/svg" width={size || width} height={size || width} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M21 12.22C21 6.73 16.74 3 12 3c-4.69 0-9 3.65-9 9.28c-.6.34-1 .98-1 1.72v2c0 1.1.9 2 2 2h1v-6.1c0-3.87 3.13-7 7-7s7 3.13 7 7V19h-8v2h8c1.1 0 2-.9 2-2v-1.22c.59-.31 1-.92 1-1.64v-2.3c0-.7-.41-1.31-1-1.62"></path></svg>
   )
 };
+
+// 追加：コレクター（四角）
+export const UserSquareIcon: React.FC<IconSvgProps> = ({
+  size = 24,
+  width,
+  height,
+  ...props
+}) => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size || width} height={size || width} viewBox="0 0 14 14" {...props}><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><circle cx="7" cy="5.5" r="2.5"></circle><path d="M2.1 13.5a5 5 0 0 1 9.8 0"></path><rect width="13" height="13" x=".5" y=".5" rx="1"></rect></g></svg>
+  )
+};
+
+// 追加：カメラ
+export const CameraIcon: React.FC<IconSvgProps> = ({
+  size = 24,
+  width,
+  height,
+  ...props
+}) => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size || width} height={size || width} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M12 18q2.075 0 3.538-1.462Q17 15.075 17 13q0-2.075-1.462-3.538Q14.075 8 12 8Q9.925 8 8.463 9.462Q7 10.925 7 13q0 2.075 1.463 3.538Q9.925 18 12 18Zm0-2q-1.25 0-2.125-.875T9 13q0-1.25.875-2.125T12 10q1.25 0 2.125.875T15 13q0 1.25-.875 2.125T12 16Zm6-6q.425 0 .712-.288Q19 9.425 19 9t-.288-.713Q18.425 8 18 8t-.712.287Q17 8.575 17 9t.288.712Q17.575 10 18 10ZM4 21q-.825 0-1.412-.587Q2 19.825 2 19V7q0-.825.588-1.412Q3.175 5 4 5h3.15L8.7 3.325q.15-.15.337-.238Q9.225 3 9.425 3h5.15q.2 0 .388.087q.187.088.337.238L16.85 5H20q.825 0 1.413.588Q22 6.175 22 7v12q0 .825-.587 1.413Q20.825 21 20 21Z"></path></svg>
+  )
+};
+
+// 追加：ショップ
+export const ShopIcon: React.FC<IconSvgProps> = ({
+  size = 24,
+  width,
+  height,
+  ...props
+}) => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size || width} height={size || width} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M21.025 11.05V19q0 .825-.587 1.413T19.025 21h-14q-.825 0-1.412-.587T3.025 19v-7.95q-.575-.525-.887-1.35t-.013-1.8l1.05-3.4q.2-.65.713-1.075T5.075 3h13.9q.675 0 1.175.413t.725 1.087l1.05 3.4q.3.975-.012 1.775t-.888 1.375m-6.8-1.05q.675 0 1.025-.462t.275-1.038l-.55-3.5h-1.95v3.7q0 .525.35.913t.85.387m-4.5 0q.575 0 .938-.388t.362-.912V5h-1.95l-.55 3.5q-.1.6.262 1.05t.938.45m-4.45 0q.45 0 .787-.325t.413-.825L7.025 5h-1.95l-1 3.35q-.15.5.162 1.075T5.275 10m13.5 0q.725 0 1.05-.575t.15-1.075L18.925 5h-1.9l.55 3.85q.075.5.413.825t.787.325m-13.75 9h14v-7.05q-.125.05-.162.05h-.088q-.675 0-1.187-.225t-1.013-.725q-.45.45-1.025.7t-1.225.25q-.675 0-1.263-.25t-1.037-.7q-.425.45-.987.7T9.825 12q-.725 0-1.312-.25t-1.038-.7q-.525.525-1.037.738T5.275 12h-.112q-.063 0-.138-.05zm14 0h-14z"></path></svg>
+  )
+};
+
+// 追加：握手（取引）
+export const HandshakeIcon: React.FC<IconSvgProps> = ({
+  size = 24,
+  width,
+  height,
+  ...props
+}) => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size || width} height={size || width} viewBox="0 0 640 512" {...props}><path fill="currentColor" d="m323.4 85.2l-96.8 78.4c-16.1 13-19.2 36.4-7 53.1c12.9 17.8 38 21.3 55.3 7.8l99.3-77.2c7-5.4 17-4.2 22.5 2.8s4.2 17-2.8 22.5L373 188.8l139 128V128h-.7l-3.9-2.5L434.8 79c-15.3-9.8-33.2-15-51.4-15c-21.8 0-43 7.5-60 21.2m22.8 124.4l-51.7 40.2c-31.5 24.6-77.2 18.2-100.8-14.2c-22.2-30.5-16.6-73.1 12.7-96.8l83.2-67.3c-11.6-4.9-24.1-7.4-36.8-7.4C234 64 215.7 69.6 200 80l-72 48v224h28.2l91.4 83.4c19.6 17.9 49.9 16.5 67.8-3.1c5.5-6.1 9.2-13.2 11.1-20.6l17 15.6c19.5 17.9 49.9 16.6 67.8-2.9c4.5-4.9 7.8-10.6 9.9-16.5c19.4 13 45.8 10.3 62.1-7.5c17.9-19.5 16.6-49.9-2.9-67.8zM16 128c-8.8 0-16 7.2-16 16v208c0 17.7 14.3 32 32 32h32c17.7 0 32-14.3 32-32V128zm32 192a16 16 0 1 1 0 32a16 16 0 1 1 0-32m496-192v224c0 17.7 14.3 32 32 32h32c17.7 0 32-14.3 32-32V144c0-8.8-7.2-16-16-16zm32 208a16 16 0 1 1 32 0a16 16 0 1 1-32 0"></path></svg>
+  )
+};
+
+// 追加：ハンドコイン（保有資産）
+export const HandCoinIcon: React.FC<IconSvgProps> = ({
+  size = 24,
+  width,
+  height,
+  ...props
+}) => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size || width} height={size || width} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M16 12c2.76 0 5-2.24 5-5s-2.24-5-5-5s-5 2.24-5 5s2.24 5 5 5m5.45 5.6c-.39-.4-.88-.6-1.45-.6h-7l-2.08-.73l.33-.94L13 16h2.8c.35 0 .63-.14.86-.37s.34-.51.34-.82c0-.54-.26-.91-.78-1.12L8.95 11H7v9l7 2l8.03-3c.01-.53-.19-1-.58-1.4M5 11H.984v11H5z"></path></svg>
+  )
+};

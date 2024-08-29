@@ -4,21 +4,40 @@ import { Code } from "@nextui-org/code";
 import { button as buttonStyles } from "@nextui-org/theme";
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/card";
 import { Image } from "@nextui-org/image";
-import { Button } from "@nextui-org/button"
+import { Button } from "@nextui-org/button";
+import { Tabs, Tab } from "@nextui-org/tabs";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableColumn,
+  TableRow,
+  TableCell
+} from "@nextui-org/table";
 
 import { siteConfig } from "@/config/site";
 import { title, subtitle } from "@/components/primitives";
-import { GithubIcon } from "@/components/icons";
 import DefaultLayout from "@/layouts/default";
+import { Tables } from "@/components/table"
+
+import {
+  GithubIcon,
+  UserSquareIcon,
+  HeartFilledIcon,
+  CameraIcon,
+  ShopIcon,
+  HandshakeIcon,
+  HandCoinIcon,
+  SearchIcon,
+} from "@/components/icons";
 
 export default function IndexPage() {
   return (
     <DefaultLayout>
+      {/* コントラクト選択 */}
       <section className="flex flex-row items-center justify-center gap-4 p-0 h-[30rem]">
         <div className="flex-row bg-[url('/network_image.jpg')] bg-cover bg-center h-full w-full">
-
           <div className="w-full h-full gap-6 grid grid-cols-12 grid-rows-2 p-8">
-
             <Card className="col-span-12 sm:col-start-2 sm:col-span-3 h-[200px]">
               <CardHeader className="absolute z-10 top-1 flex-col items-start">
                 <p className="text-tiny text-white/60 uppercase font-bold">Your day your way</p>
@@ -95,10 +114,91 @@ export default function IndexPage() {
               </CardFooter>
             </Card>
           </div>
-
         </div>
       </section>
-      <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
+
+      {/* ランキング 条件１行目*/}
+      <section className="flex flex-col items-center justify-center gap-2 py-2 md:py-4">
+        <div className="flex flex-row items-start w-full gap-6">
+          <Tabs aria-label="Options" color="default" variant="solid">
+            <Tab
+              key="collectors"
+              title={
+                <div className="flex items-center space-x-2">
+                  <UserSquareIcon/>
+                  <span>コレクター</span>
+                </div>
+              }
+            />
+            <Tab
+              key="creators"
+              title={
+                <div className="flex items-center space-x-2">
+                  <CameraIcon/>
+                  <span>クリエイター</span>
+                </div>
+              }
+            />
+            <Tab
+              key="shops"
+              title={
+                <div className="flex items-center space-x-2">
+                  <ShopIcon/>
+                  <span>ショップ</span>
+                </div>
+              }
+            />
+            <Tab
+              key="treasures"
+              title={
+                <div className="flex items-center space-x-2">
+                  <HeartFilledIcon/>
+                  <span>アイテム</span>
+                </div>
+              }
+            />
+          </Tabs>
+        </div>
+
+        <div className="flex flex-row w-full gap-3 grid grid-cols-6 grid-flow-row p-1 auto-rows-min">
+          <div className="flex items-center space-x-2 pl-4">
+            <HandshakeIcon/>
+            <span>取引量</span>
+          </div>
+          <div>
+            <Tabs aria-label="Options" color="default" variant="solid">
+              <Tab
+                key="oneday"
+                title={<div className="flex items-center space-x-1"><span>１日</span></div>}
+              />
+              <Tab
+                key="oneweek"
+                title={<div className="flex items-center space-x-1"><span>１週</span></div>}
+              />
+              <Tab
+                key="onemonth"
+                title={<div className="flex items-center space-x-1"><span>１か月</span></div>}
+              />
+            </Tabs>
+          </div>
+          <div className="flex flex-row-reverse items-end">
+            <Button startContent={<SearchIcon/>}>
+              一覧表示
+            </Button>
+          </div>
+          <div className="flex flex-row items-center space-x-2 pl-4">
+            <HandCoinIcon/>
+            <span>保有資産</span>
+          </div>
+          <div className="col-span-2 flex flex-row-reverse items-end">
+            <Button startContent={<SearchIcon/>}>
+              一覧表示
+            </Button>
+          </div>
+          <div className="col-span-3"><Tables/></div>
+          <div className="col-span-3"><Tables/></div>
+        </div>
+
         <div className="inline-block max-w-xl text-center justify-center">
           <h1 className={title()}>Make&nbsp;</h1>
           <h1 className={title({ color: "violet" })}>beautiful&nbsp;</h1>
