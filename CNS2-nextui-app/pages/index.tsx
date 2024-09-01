@@ -17,8 +17,16 @@ import {
 
 import { siteConfig } from "@/config/site";
 import { title, subtitle } from "@/components/primitives";
-import DefaultLayout from "@/layouts/default";
 import { Tables } from "@/components/table"
+import { 
+  Contract1Cord,
+  Contract2Cord,
+  Contract3Cord,
+  Contract4Cord,
+  HelpCords,
+  SupportCommunityCords,
+ } from "@/components/cards"
+import DefaultLayout from "@/layouts/default";
 
 import {
   GithubIcon,
@@ -29,218 +37,174 @@ import {
   HandshakeIcon,
   HandCoinIcon,
   SearchIcon,
+  HelpDocsIcon,
 } from "@/components/icons";
 
 export default function IndexPage() {
   return (
     <DefaultLayout>
-      {/* コントラクト選択 */}
-      <section className="flex flex-row items-center justify-center gap-4 p-0 h-[30rem]">
-        <div className="flex-row bg-[url('/network_image.jpg')] bg-cover bg-center h-full w-full">
-          <div className="w-full h-full gap-6 grid grid-cols-12 grid-rows-2 p-8">
-            <Card className="col-span-12 sm:col-start-2 sm:col-span-3 h-[200px]">
-              <CardHeader className="absolute z-10 top-1 flex-col items-start">
-                <p className="text-tiny text-white/60 uppercase font-bold">Your day your way</p>
-                <h4 className="text-white/90 font-medium text-xl">Trading Cards</h4>
-              </CardHeader>
-              <Image
-                removeWrapper
-                alt="Woman listing to music"
-                className="z-0 w-full h-full scale-100 translate-y-0 object-cover"
-                src="trc.jpg"
-              />
-              <CardFooter className="justify-between bg-black/40 border-white/20 border-1 overflow-hidden py-1 absolute before:rounded-xl rounded-large bottom-1 w-[calc(100%_-_8px)] shadow-small ml-1 z-10">
-                <p className="text-tiny text-white/80">Available soon.</p>
-                <Button className="text-tiny text-white bg-black/60" variant="flat" color="default" radius="lg" size="sm">
-                  Notify me
-                </Button>
-              </CardFooter>
-            </Card>
-            
-            <Card isFooterBlurred className="w-full h-[200px] col-span-12 sm:col-span-3">
-              <CardHeader className="absolute z-10 top-1 flex-col items-start">
-                <p className="text-tiny text-white/60 uppercase font-bold">Your day your way</p>
-                <h4 className="text-white/90 font-medium text-xl">illustration</h4>
-              </CardHeader>
-              <Image
-                removeWrapper
-                alt="Woman listing to music"
-                className="z-0 w-full h-full scale-100 translate-y-0 object-cover"
-                src="sumple_ill2.png"
-              />
-              <CardFooter className="justify-between before:bg-white/10 border-white/20 border-1 overflow-hidden py-1 absolute before:rounded-xl rounded-large bottom-1 w-[calc(100%_-_8px)] shadow-small ml-1 z-10">
-                <p className="text-tiny text-white/80">Available soon.</p>
-                <Button className="text-tiny text-white bg-black/20" variant="flat" color="default" radius="lg" size="sm">
-                  Notify me
-                </Button>
-              </CardFooter>
-            </Card>
 
-            <Card isFooterBlurred className="w-full h-[200px] col-span-12 sm:col-start-6 sm:col-span-3">
-              <CardHeader className="absolute z-10 top-1 flex-col items-start">
-                <p className="text-tiny text-white/60 uppercase font-bold">New</p>
-                <h4 className="text-white font-medium text-2xl">Photograph</h4>
-              </CardHeader>
-              <Image
-                removeWrapper
-                alt="Card example background"
-                className="z-0 w-full h-full scale-125 -translate-y-6 object-cover"
-                src="https://nextui.org/images/card-example-6.jpeg"
-              />
-              <CardFooter className="justify-between before:bg-white/10 border-white/20 border-1 overflow-hidden py-1 absolute before:rounded-xl rounded-large bottom-1 w-[calc(100%_-_8px)] shadow-small ml-1 z-10">
-                <p className="text-tiny text-white/80">Available soon.</p>
-                <Button className="text-tiny text-white bg-black/20" variant="flat" color="default" radius="lg" size="sm">
-                  Notify me
-                </Button>
-              </CardFooter>
-            </Card>
+      {/* ★コントラクト選択 */}
+      <section className="flex flex-row items-center justify-center gap-4 p-0 h-[40rem]">
+        <div className="flex-row bg-[url('/network_image.png')] bg-cover bg-center h-full w-full">
+          <div className="w-full h-full gap-6 grid grid-cols-12 grid-rows-3 p-8">
 
-            <Card isFooterBlurred className="w-full h-[200px] col-span-12 sm:col-span-3">
-              <CardHeader className="absolute z-10 top-1 flex-col items-start">
-                <p className="text-tiny text-white/60 uppercase font-bold">New</p>
-                <h4 className="text-white/90 font-medium text-xl">Comming Soon...</h4>
-              </CardHeader>
-              <Image
-                removeWrapper
-                alt="Relaxing app background"
-                className="z-0 w-full h-full object-cover"
-                src="https://nextui.org/images/card-example-5.jpeg"
-              />
-              <CardFooter className="justify-between before:bg-white/10 border-white/20 border-1 overflow-hidden py-1 absolute before:rounded-xl rounded-large bottom-1 w-[calc(100%_-_8px)] shadow-small ml-1 z-10">
-                <p className="text-tiny text-white/80">Available soon.</p>
-                <Button className="text-tiny text-white bg-black/20" variant="flat" color="default" radius="lg" size="sm">
-                  Notify me
-                </Button>
-              </CardFooter>
-            </Card>
+            {/* 上段選択 */}
+            <div className="col-span-6 sm:col-start-2 sm:col-span-3"><Contract1Cord/></div>
+            <div className="col-span-6 sm:col-span-3"><Contract2Cord/></div>
+            <div className="col-span-0 sm:col-span-6"></div>
+
+            {/* コメントエリア */}
+            <div className="col-span-12 sm:col-span-12 inline-block text-center bg-black/30">
+              <h1 className={title()}>Connect with&nbsp;</h1>
+              <h1 className={title({ color: "pink" })}>collectors&nbsp;</h1>
+              <br />
+              <h1 className={title()}>in the world!</h1>
+            </div>
+
+            {/* 下段選択 */}
+            <div className="col-span-6 sm:col-start-6 sm:col-span-3"><Contract3Cord/></div>
+            <div className="col-span-6 sm:col-span-3"><Contract4Cord/></div>
           </div>
         </div>
       </section>
 
-      {/* ランキング 条件１行目*/}
-      <section className="flex flex-col items-center justify-center gap-2 py-2 md:py-4">
-        <div className="flex flex-row items-start w-full gap-6">
-          <Tabs aria-label="Options" color="default" variant="solid">
-            <Tab
-              key="collectors"
-              title={
-                <div className="flex items-center space-x-2">
-                  <UserSquareIcon/>
-                  <span>コレクター</span>
-                </div>
-              }
-            />
-            <Tab
-              key="creators"
-              title={
-                <div className="flex items-center space-x-2">
-                  <CameraIcon/>
-                  <span>クリエイター</span>
-                </div>
-              }
-            />
-            <Tab
-              key="shops"
-              title={
-                <div className="flex items-center space-x-2">
-                  <ShopIcon/>
-                  <span>ショップ</span>
-                </div>
-              }
-            />
-            <Tab
-              key="treasures"
-              title={
-                <div className="flex items-center space-x-2">
-                  <HeartFilledIcon/>
-                  <span>アイテム</span>
-                </div>
-              }
-            />
-          </Tabs>
-        </div>
+      {/* ★ランキング */}
+      <section className="flex flex-col items-stretch justify-stretch gap-1 py-2 md:py-4">
+        <div className="flex-row bg-[url('/bg_wave_gen_sf.png')] bg-cover bg-center h-full w-full">
 
-        <div className="flex flex-row w-full gap-3 grid grid-cols-6 grid-flow-row p-1 auto-rows-min">
-          <div className="flex items-center space-x-2 pl-4">
-            <HandshakeIcon/>
-            <span>取引量</span>
+          {/* コメントエリア */}
+          <div className="inline-block text-left py-10">
+            <h1 className={title()}>Explore your&nbsp;</h1>
+            <h1 className={title({ color: "yellow" })}>interests&nbsp;</h1>
+            <br />
+            <h1 className={title()}>in the rankings.</h1>
           </div>
-          <div>
+
+          {/* ユーザーフィルター */}
+          <div className="scale-85 sm:scale-100 transform-origin-top-left ml-[-35px] sm:ml-0">
             <Tabs aria-label="Options" color="default" variant="solid">
               <Tab
-                key="oneday"
-                title={<div className="flex items-center space-x-1"><span>１日</span></div>}
+                key="collectors"
+                title={
+                  <div className="flex items-center space-x-1">
+                    <UserSquareIcon/>
+                    <span>コレクター</span>
+                  </div>
+                }
               />
               <Tab
-                key="oneweek"
-                title={<div className="flex items-center space-x-1"><span>１週</span></div>}
+                key="creators"
+                title={
+                  <div className="flex items-center space-x-1">
+                    <CameraIcon/>
+                    <span>クリエイター</span>
+                  </div>
+                }
               />
               <Tab
-                key="onemonth"
-                title={<div className="flex items-center space-x-1"><span>１か月</span></div>}
+                key="shops"
+                title={
+                  <div className="flex items-center space-x-1">
+                    <ShopIcon/>
+                    <span>ショップ</span>
+                  </div>
+                }
+              />
+              <Tab
+                key="treasures"
+                title={
+                  <div className="flex items-center space-x-1">
+                    <HeartFilledIcon/>
+                    <span>アイテム</span>
+                  </div>
+                }
               />
             </Tabs>
           </div>
-          <div className="flex flex-row-reverse items-end">
-            <Button startContent={<SearchIcon/>}>
-              一覧表示
-            </Button>
+
+          <div className="gap-3 grid grid-cols-2 p-1 auto-rows-min">
+            <div className="col-span-2 sm:col-span-1">
+              <div className="flex flex-row items-center justify-between py-3">
+                <div className="flex items-center space-x-1 pl-4">
+                  <HandshakeIcon/>
+                  <span>取引量</span>
+                </div>
+                <div>
+                  <Tabs aria-label="Options" color="default" variant="solid">
+                    <Tab
+                      key="oneday"
+                      title={<div className="flex items-center space-x-1"><span>１日</span></div>}
+                    />
+                    <Tab
+                      key="oneweek"
+                      title={<div className="flex items-center space-x-1"><span>１週</span></div>}
+                    />
+                    <Tab
+                      key="onemonth"
+                      title={<div className="flex items-center space-x-1"><span>１か月</span></div>}
+                    />
+                  </Tabs>
+                </div>
+                <div className="flex flex-row-reverse items-end">
+                  <Button startContent={<SearchIcon/>}>
+                    一覧表示
+                  </Button>
+                </div>
+              </div>
+              <Tables/>
+            </div>
+
+            <div className="col-span-2 sm:col-span-1">
+              <div className="flex flex-row items-center justify-between py-3">
+                <div className="flex items-center space-x-1 pl-4">
+                  <HandCoinIcon/>
+                  <span>保有資産</span>
+                </div>
+                <div className="col-span-2 flex flex-row-reverse items-end">
+                  <Button startContent={<SearchIcon/>}>
+                    一覧表示
+                  </Button>
+                </div>
+              </div>
+              <Tables/>
+            </div>
+
           </div>
-          <div className="flex flex-row items-center space-x-2 pl-4">
-            <HandCoinIcon/>
-            <span>保有資産</span>
-          </div>
-          <div className="col-span-2 flex flex-row-reverse items-end">
-            <Button startContent={<SearchIcon/>}>
-              一覧表示
-            </Button>
-          </div>
-          <div className="col-span-3"><Tables/></div>
-          <div className="col-span-3"><Tables/></div>
+        </div>
+      </section>
+
+      {/* ★ヘルプ */}
+      <section className="flex flex-col items-stretch justify-stretch gap-2 py-2 md:py-4">
+
+        {/* コメントエリア */}
+        <div className="inline-block text-left py-4 flex flex-row">
+          <h1 className={title({ color: "green" })}>Learn&nbsp;</h1>
+          <h1 className={title()}>how to use.&nbsp;</h1>
+          <HelpDocsIcon/>
         </div>
 
-        <div className="inline-block max-w-xl text-center justify-center">
-          <h1 className={title()}>Make&nbsp;</h1>
-          <h1 className={title({ color: "violet" })}>beautiful&nbsp;</h1>
-          <br />
-          <h1 className={title()}>
-            websites regardless of your design experience.
-          </h1>
-          <h4 className={subtitle({ class: "mt-4" })}>
-            Beautiful, fast and modern React UI library.
-          </h4>
+        {/* Cardエリア */}
+        <div className="flex flex-row w-full gap-3 grid grid-cols-6 grid-flow-row p-0 auto-rows-min">
+          <div className="col-span-6">
+            <HelpCords/>
+          </div>
+        </div>
+      </section>
+
+      {/* ★サポート＆コミュニティ */}
+      <section className="flex flex-col items-center justify-center gap-2 py-2 md:py-4">
+
+        {/* コメントエリア */}
+        <div className="inline-block text-left py-4 flex flex-row">
+          <h1 className={title()}>Support & Community</h1>
+        </div>
+        
+        {/* Cardエリア */}
+        <div className="flex flex-row justify-stretch gap-3 P-10">
+            <SupportCommunityCords/>
         </div>
 
-        <div className="flex gap-3">
-          <Link
-            isExternal
-            className={buttonStyles({
-              color: "primary",
-              radius: "full",
-              variant: "shadow",
-            })}
-            href={siteConfig.links.docs}
-          >
-            Documentation
-          </Link>
-          <Link
-            isExternal
-            className={buttonStyles({ variant: "bordered", radius: "full" })}
-            href={siteConfig.links.github}
-          >
-            <GithubIcon size={20} />
-            GitHub
-          </Link>
-        </div>
-
-        <div className="mt-8">
-          <Snippet hideCopyButton hideSymbol variant="bordered">
-            <span>
-              Get started by editing{" "}
-              <Code color="primary">pages/index.tsx</Code>
-            </span>
-          </Snippet>
-        </div>
       </section>
     </DefaultLayout>
   );

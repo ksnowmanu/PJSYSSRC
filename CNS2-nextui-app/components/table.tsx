@@ -43,33 +43,13 @@ export const Tables = () => {
             {cellValue}
           </Chip>
         );
-      case "actions":
-        return (
-          <div className="relative flex items-center gap-2">
-            <Tooltip content="Details">
-              <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
-                <ShopIcon />
-              </span>
-            </Tooltip>
-            <Tooltip content="Edit user">
-              <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
-                <HandshakeIcon />
-              </span>
-            </Tooltip>
-            <Tooltip color="danger" content="Delete user">
-              <span className="text-lg text-danger cursor-pointer active:opacity-50">
-                <HandCoinIcon />
-              </span>
-            </Tooltip>
-          </div>
-        );
       default:
         return cellValue;
     }
   }, []);
 
   return (
-  <Table aria-label="Example table with custom cells">
+  <Table aria-label="Example table with custom cells" className="opacity-95">
       <TableHeader columns={columns}>
         {(column) => (
           <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"}>

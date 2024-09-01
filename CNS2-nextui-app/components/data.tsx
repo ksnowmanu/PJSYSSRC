@@ -1,16 +1,15 @@
 import React from "react";
 const columns = [
   {name: "コレクター名", uid: "name"},
-  {name: "取引件数", uid: "role"},
+  {name: "取引件数", uid: "numtrade"},
   {name: "STATUS", uid: "status"},
-  {name: "ACTIONS", uid: "actions"},
 ];
 
 const users = [
   {
     id: 1,
     name: "Tony Reichert",
-    role: "CEO",
+    numtrade: "190",
     team: "Management",
     status: "active",
     age: "29",
@@ -20,7 +19,7 @@ const users = [
   {
     id: 2,
     name: "Zoey Lang",
-    role: "Technical Lead",
+    numtrade: "175",
     team: "Development",
     status: "paused",
     age: "25",
@@ -30,7 +29,7 @@ const users = [
   {
     id: 3,
     name: "Jane Fisher",
-    role: "Senior Developer",
+    numtrade: "121",
     team: "Development",
     status: "active",
     age: "22",
@@ -40,7 +39,7 @@ const users = [
   {
     id: 4,
     name: "William Howard",
-    role: "Community Manager",
+    numtrade: "89",
     team: "Marketing",
     status: "vacation",
     age: "28",
@@ -50,7 +49,7 @@ const users = [
   {
     id: 5,
     name: "Kristen Copper",
-    role: "Sales Manager",
+    numtrade: "62",
     team: "Sales",
     status: "active",
     age: "24",
