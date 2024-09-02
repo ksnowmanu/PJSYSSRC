@@ -20,6 +20,12 @@ export const Tables = () => {
     const cellValue = user[columnKey as keyof User];
 
     switch (columnKey) {
+      case "id":
+        return (
+          <div>
+            <p className="text-bold text-sm text-center capitalize">{cellValue}</p>
+          </div>
+        );
       case "name":
         return (
           <User
@@ -30,11 +36,10 @@ export const Tables = () => {
             {user.email}
           </User>
         );
-      case "role":
+      case "numtrade":
         return (
           <div className="flex flex-col">
-            <p className="text-bold text-sm capitalize">{cellValue}</p>
-            <p className="text-bold text-sm capitalize text-default-400">{user.team}</p>
+            <p className="text-bold text-sm text-right capitalize">{cellValue}</p>
           </div>
         );
       case "status":
@@ -52,7 +57,7 @@ export const Tables = () => {
   <Table aria-label="Example table with custom cells" className="opacity-95">
       <TableHeader columns={columns}>
         {(column) => (
-          <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"}>
+          <TableColumn key={column.uid} className={column.classname}>
             {column.name}
           </TableColumn>
         )}

@@ -1,8 +1,9 @@
 import React from "react";
 const columns = [
-  {name: "コレクター名", uid: "name"},
-  {name: "取引件数", uid: "numtrade"},
-  {name: "STATUS", uid: "status"},
+  {name: "LANK", uid: "id", classname:"text-center w-1/12 p-1"},  
+  {name: "コレクター名", uid: "name", classname:"text-left w-5/12 p-1"},
+  {name: "取引件数", uid: "numtrade", classname:"text-center w-3/12 p-1"},
+  {name: "STATUS", uid: "status", classname:"text-center w-3/12 p-1"},
 ];
 
 const users = [
