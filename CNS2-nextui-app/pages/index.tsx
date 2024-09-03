@@ -29,7 +29,6 @@ import {
 import DefaultLayout from "@/layouts/default";
 
 import {
-  GithubIcon,
   UserSquareIcon,
   HeartFilledIcon,
   CameraIcon,
@@ -40,19 +39,23 @@ import {
   HelpDocsIcon,
 } from "@/components/icons";
 
+import {
+  termSelect,
+} from "@/components/select";
+
 export default function IndexPage() {
   return (
     <DefaultLayout>
 
       {/* ★コントラクト選択 */}
-      <section className="flex flex-row items-center justify-center gap-4 p-0 h-[40rem]">
+      <section className="flex flex-row items-center justify-center gap-1 p-0 h-[40rem]">
         <div className="flex-row bg-[url('/network_image.png')] bg-cover bg-center h-full w-full">
-          <div className="w-full h-full gap-6 grid grid-cols-12 grid-rows-3 p-8">
+          <div className="w-full h-full gap-6 grid grid-cols-12 grid-rows-3 gap-x-3 sm:gap-x-10">
 
             {/* 上段選択 */}
-            <div className="col-span-6 sm:col-start-2 sm:col-span-3"><Contract1Cord/></div>
-            <div className="col-span-6 sm:col-span-3"><Contract2Cord/></div>
-            <div className="col-span-0 sm:col-span-6"></div>
+            <div className="col-span-6 sm:col-start-2 sm:col-span-3 pt-12"><Contract1Cord/></div>
+            <div className="col-span-6 sm:col-span-3 pt-12"><Contract2Cord/></div>
+            <div className="col-span-0 sm:col-span-6 pt-12"></div>
 
             {/* コメントエリア */}
             <div className="col-span-12 sm:col-span-12 inline-block text-center bg-black/30">
@@ -130,7 +133,10 @@ export default function IndexPage() {
                   <HandshakeIcon/>
                   <span>取引量</span>
                 </div>
-                <div>
+
+                {/* 日付選択⇒通常時：タブ　sm時：ドロップダウン */}
+                {/* 通常時 */}
+                <div className="hidden sm:block">
                   <Tabs aria-label="Options" color="default" variant="solid">
                     <Tab
                       key="oneday"
@@ -146,6 +152,11 @@ export default function IndexPage() {
                     />
                   </Tabs>
                 </div>
+                {/* sm時 */}
+                <div className="block sm:hidden">
+                  <termSelect/>
+                </div>
+
                 <div className="flex flex-row-reverse items-end">
                   <Button startContent={<SearchIcon/>}>
                     一覧表示

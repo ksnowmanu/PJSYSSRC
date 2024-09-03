@@ -11,13 +11,13 @@ export const Contract1Cord = () => {
   return(
     <Card isFooterBlurred className="w-full h-[200px] animate-bounceY">
       <CardHeader className="absolute z-10 top-0 flex-col items-start">
-        <h4 className="text-white/90 font-medium text-2xl bg-black/60 rounded-full px-2">Trading Cards</h4>
+        <h4 className="text-white/90 font-medium text-center text-2xl bg-black/60 rounded-full px-2">Trading Cards</h4>
       </CardHeader>
       <Image
         isZoomed
         removeWrapper
         alt="Woman listing to music"
-        className="z-0 w-full h-auto scale-100 translate-y-0 object-cover"
+        className="z-0 w-full h-full scale-100 translate-y-0 object-cover"
         src="Contract_trc.png"
       />
       <CardFooter className="justify-between before:bg-white/10 border-white/20 border-1 overflow-hidden py-1 absolute before:rounded-xl rounded-large bottom-1 w-[calc(100%_-_8px)] shadow-small ml-1 z-10">
@@ -34,7 +34,7 @@ export const Contract2Cord = () => {
   return(
     <Card isFooterBlurred className="w-full h-[200px] animate-bounceY animation-delay-1000">
     <CardHeader className="absolute z-10 top-0 flex-col items-start">
-      <h4 className="text-white/90 font-medium text-2xl bg-black/60 rounded-full px-2">illustration</h4>
+      <h4 className="text-white/90 font-medium text-center text-2xl bg-black/60 rounded-full px-2">illustration</h4>
     </CardHeader>
     <Image
       isZoomed
@@ -57,7 +57,7 @@ export const Contract3Cord = () => {
   return(
     <Card isFooterBlurred className="w-full h-[200px] animate-bounceY animation-delay-2000">
     <CardHeader className="absolute z-10 top-0 flex-col items-start">
-      <h4 className="text-white font-medium text-2xl bg-black/60 rounded-full px-2">Photograph</h4>
+      <h4 className="text-white font-medium text-center text-2xl bg-black/60 rounded-full px-2">Photograph</h4>
     </CardHeader>
     <Image
       isZoomed
