@@ -18,6 +18,7 @@ import {
 import { siteConfig } from "@/config/site";
 import { title, subtitle } from "@/components/primitives";
 import { Tables } from "@/components/table"
+import { TermSelect, RankFilterSelect } from "@/components/select"
 import { 
   Contract1Cord,
   Contract2Cord,
@@ -38,10 +39,6 @@ import {
   SearchIcon,
   HelpDocsIcon,
 } from "@/components/icons";
-
-import {
-  termSelect,
-} from "@/components/select";
 
 export default function IndexPage() {
   return (
@@ -84,8 +81,8 @@ export default function IndexPage() {
             <h1 className={title()}>in the rankings.</h1>
           </div>
 
-          {/* ユーザーフィルター */}
-          <div className="scale-85 sm:scale-100 transform-origin-top-left ml-[-35px] sm:ml-0">
+          {/* ユーザーフィルター⇒通常時：タブ　sm時：セレクト */}
+          <div className="hidden sm:block">
             <Tabs aria-label="Options" color="default" variant="solid">
               <Tab
                 key="collectors"
@@ -125,6 +122,10 @@ export default function IndexPage() {
               />
             </Tabs>
           </div>
+          {/* sm時 */}
+          <div className="w-full block sm:hidden">
+            <RankFilterSelect/>
+          </div>
 
           <div className="gap-3 grid grid-cols-2 p-1 auto-rows-min">
             <div className="col-span-2 sm:col-span-1">
@@ -134,7 +135,7 @@ export default function IndexPage() {
                   <span>取引量</span>
                 </div>
 
-                {/* 日付選択⇒通常時：タブ　sm時：ドロップダウン */}
+                {/* 日付選択⇒通常時：タブ　sm時：セレクト */}
                 {/* 通常時 */}
                 <div className="hidden sm:block">
                   <Tabs aria-label="Options" color="default" variant="solid">
@@ -153,8 +154,8 @@ export default function IndexPage() {
                   </Tabs>
                 </div>
                 {/* sm時 */}
-                <div className="block sm:hidden">
-                  <termSelect/>
+                <div className="w-1/3 block sm:hidden">
+                  <TermSelect/>
                 </div>
 
                 <div className="flex flex-row-reverse items-end">

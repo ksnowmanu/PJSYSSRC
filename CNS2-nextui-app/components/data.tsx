@@ -1,6 +1,6 @@
 import React from "react";
 const columns = [
-  {name: "LANK", uid: "id", classname:"text-center w-1/12 p-1"},  
+  {name: "RANK", uid: "id", classname:"text-center w-1/12 p-1"},  
   {name: "コレクター名", uid: "name", classname:"text-left w-5/12 p-1"},
   {name: "取引件数", uid: "numtrade", classname:"text-center w-3/12 p-1"},
   {name: "STATUS", uid: "status", classname:"text-center w-3/12 p-1"},
@@ -15,7 +15,7 @@ const users = [
     status: "active",
     age: "29",
     avatar: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
-    email: "tony.reichert@example.com",
+    email: "tony@example.com",
   },
   {
     id: 2,
@@ -25,7 +25,7 @@ const users = [
     status: "paused",
     age: "25",
     avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d",
-    email: "zoey.lang@example.com",
+    email: "zoey@example.com",
   },
   {
     id: 3,
@@ -35,7 +35,7 @@ const users = [
     status: "active",
     age: "22",
     avatar: "https://i.pravatar.cc/150?u=a04258114e29026702d",
-    email: "jane.fisher@example.com",
+    email: "jane@example.com",
   },
   {
     id: 4,
@@ -45,7 +45,7 @@ const users = [
     status: "vacation",
     age: "28",
     avatar: "https://i.pravatar.cc/150?u=a048581f4e29026701d",
-    email: "william.howard@example.com",
+    email: "william@example.com",
   },
   {
     id: 5,
@@ -55,7 +55,7 @@ const users = [
     status: "active",
     age: "24",
     avatar: "https://i.pravatar.cc/150?u=a092581d4ef9026700d",
-    email: "kristen.cooper@example.com",
+    email: "kristen@example.com",
   },
 ];
 
