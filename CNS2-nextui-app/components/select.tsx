@@ -23,7 +23,6 @@ export const RankFilterSelect = () => {
     >
     {listFilter.map((listFilter) => (
       <SelectItem key={listFilter.key} startContent={listFilter.icon}>
-        
         {listFilter.label}
       </SelectItem>
     ))}
