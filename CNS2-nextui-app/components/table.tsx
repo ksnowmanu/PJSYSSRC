@@ -1,10 +1,11 @@
 import React from "react";
 import {Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, User, Chip, Tooltip, ChipProps, getKeyValue} from "@nextui-org/react";
 import {columns, users} from "./data";
+import { Link } from "@nextui-org/link";
 import {
     ShopIcon,
-    HandshakeIcon,
-    HandCoinIcon,
+    TwitterXIcon,
+    YoutubeIcon,
   } from "@/components/icons";
 
 const statusColorMap: Record<string, ChipProps["color"]>  = {
@@ -42,19 +43,46 @@ export const Tables = () => {
             <p className="text-bold text-sm text-right capitalize">{cellValue}</p>
           </div>
         );
-      case "status":
+      case "tranval":
+        return (
+          <div className="flex flex-col">
+            <p className="text-bold text-sm text-right capitalize">{cellValue}</p>
+          </div>
+        );
+        case "actions":
+          return (
+            <div className="relative flex items-center gap-2">
+              <Tooltip content="Details">
+                <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
+                  <ShopIcon />
+                </span>
+              </Tooltip>
+              <Tooltip content="Edit user">
+                <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
+                  <TwitterXIcon />
+                </span>
+              </Tooltip>
+              <Tooltip color="danger" content="Delete user">
+                <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
+                  <YoutubeIcon />
+                </span>
+              </Tooltip>
+            </div>
+          );
+/*      case "status":
         return (
           <Chip className="capitalize" color={statusColorMap[user.status]} size="sm" variant="flat">
             {cellValue}
           </Chip>
         );
+*/
       default:
         return cellValue;
     }
   }, []);
 
   return (
-  <Table aria-label="Example table with custom cells" className="opacity-95">
+  <Table removeWrapper aria-label="Example table with custom cells" className="bg-black bg-cover bg-center opacity-90 w-full">
       <TableHeader columns={columns}>
         {(column) => (
           <TableColumn key={column.uid} className={column.classname}>
@@ -65,7 +93,10 @@ export const Tables = () => {
       <TableBody items={users}>
         {(item) => (
           <TableRow key={item.id}>
-            {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+            {(columnKey) => 
+              <TableCell className={columns.find(col => col.uid === columnKey)?.classname}>
+                {renderCell(item, columnKey)}
+              </TableCell>}
           </TableRow>
         )}
       </TableBody>

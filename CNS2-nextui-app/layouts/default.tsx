@@ -22,7 +22,7 @@ export default function DefaultLayout({
           <div>
             <Image
               radius="none"
-              className="w-1/5"
+              className="w-full sm:w-1/4"
               src="Company_logo.png"
             />
           </div>
@@ -30,8 +30,8 @@ export default function DefaultLayout({
             <span className="text-default-400 text-xs">© 2024 CNS Inc. All rights reserved.</span>
           </div>
           <div className="text-right">
-          <span className="text-default-400 text-xs px-1">プライバシーポリシー</span>
-          <span className="text-default-400 text-xs px-1">サービス利用規約</span>
+            <span className="text-default-400 text-xs px-1">プライバシーポリシー</span>
+            <span className="text-default-400 text-xs px-1">サービス利用規約</span>
           </div>
         </div>
       </footer>
