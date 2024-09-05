@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import { IconSvgProps } from "@/types";
+import Image from 'next/image';
 
 export const Logo: React.FC<IconSvgProps> = ({
   size = 36,
@@ -248,6 +249,18 @@ export const TwitterXIcon: React.FC<IconSvgProps> = ({
   )
 };
 
+// 追加：フェイスブック
+export const FacebookIcon: React.FC<IconSvgProps> = ({
+  size = 24,
+  width,
+  height,
+  ...props
+}) => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size || width} height={size || width} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95"></path></svg>
+  )
+};
+
 // 追加：ユーザー
 export const UserCircleIcon: React.FC<IconSvgProps> = ({
   size = 24,
@@ -343,3 +356,31 @@ export const HandCoinIcon: React.FC<IconSvgProps> = ({
     <svg xmlns="http://www.w3.org/2000/svg" width={size || width} height={size || width} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M16 12c2.76 0 5-2.24 5-5s-2.24-5-5-5s-5 2.24-5 5s2.24 5 5 5m5.45 5.6c-.39-.4-.88-.6-1.45-.6h-7l-2.08-.73l.33-.94L13 16h2.8c.35 0 .63-.14.86-.37s.34-.51.34-.82c0-.54-.26-.91-.78-1.12L8.95 11H7v9l7 2l8.03-3c.01-.53-.19-1-.58-1.4M5 11H.984v11H5z"></path></svg>
   )
 };
+
+export const BrandIcon: React.FC<IconSvgProps> = () => {
+  return (
+    <Image
+      src="/Company_noname_logo.png"
+      alt="Shop Icon"
+      width="24"
+      height="24"
+    />
+  );
+};
+
+export const VerticalDotsIcon = () => (
+  <svg
+    aria-hidden="true"
+    fill="none"
+    focusable="false"
+    width="24"
+    height="24"
+    role="presentation"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M12 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+      fill="currentColor"
+    />
+  </svg>
+);

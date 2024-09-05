@@ -36,6 +36,7 @@ import {
   UserCircleIcon,
   HelpDocsIcon,
   SupportIcon,
+  BrandIcon,
 } from "@/components/icons";
 
 export const Navbar = () => {
@@ -106,7 +107,7 @@ export const Navbar = () => {
         <NavbarItem className="sm:hidden basis-1 pl-0"><NavbarMenuToggle /></NavbarItem>
         <NavbarBrand className="gap-3 max-w-fit">
           <NextLink className="flex justify-start items-center gap-1" href="/">
-            <Logo />
+            <BrandIcon />
             <p className="font-bold text-inherit">CNS</p>
           </NextLink>
         </NavbarBrand>

@@ -1,16 +1,17 @@
 import React from "react";
 const columns = [
-  {name: "TOP", uid: "id", classname:"text-center w-1 p-1"},  
-  {name: "コレクター名", uid: "name", classname:"text-left w-4/12 sm:w-5/12 p-1"},
-  {name: "リンク", uid: "actions", classname:"hidden sm:block sm:pt-3"},
-  {name: "取引件数", uid: "numtrade", classname:"text-right w-4/12 sm:w-2/12 pr-2 sm:pr-5"},
-  {name: "取引額", uid: "tranval", classname:"text-right w-4/12 sm:w-2/12 pr-2 sm:pr-5"},
+  {name: "TOP", uid: "id"          , classname:"text-center w-1 p-0 sm:p-1"},  
+  {name: "コレクター名", uid: "name", classname:"w-auto max-w-36 sm:w-5/12 truncate overflow-clip"},
+  {name: "取引件数", uid: "numtrade", classname:"text-right w-2/12 sm:w-2/12 pr-2 sm:pr-5"},
+  {name: "取引額", uid: "tranval"   , classname:"text-right w-2/12 sm:w-2/12 pr-2 sm:pr-5"},
+  {name: "リンク", uid: "actions"   , classname:"hidden sm:block sm:pt-3 text-center"},
+  {name: "リンク", uid: "actions2"  , classname:"inline-block sm:hidden pt-3"},
 ];
 
 const users = [
   {
     id: 1,
-    name: "Tony Reichert",
+    name: "Tony Reichertaaaaaaaaa",
     numtrade: "190",
 //    status: "active",
     tranval: "29",
