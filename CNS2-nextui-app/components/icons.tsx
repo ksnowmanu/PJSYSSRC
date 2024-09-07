@@ -239,7 +239,7 @@ export const YoutubeIcon: React.FC<IconSvgProps> = ({
 
 // 追加：X(旧twitter)
 export const TwitterXIcon: React.FC<IconSvgProps> = ({
-  size = 18,
+  size = 24,
   width,
   height,
   ...props

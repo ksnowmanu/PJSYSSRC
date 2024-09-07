@@ -1,7 +1,24 @@
+import { divider } from "@nextui-org/theme";
+import {
+  TwitterIcon,
+  TwitterXIcon,
+  YoutubeIcon,
+  GithubIcon,
+  DiscordIcon,
+  HeartFilledIcon,
+  CodiconSignIn,
+  SearchIcon,
+  Logo,
+  UserCircleIcon,
+  HelpDocsIcon,
+  SupportIcon,
+  BrandIcon,
+} from "@/components/icons";
+
 export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
-  name: "Next.js + NextUI",
+  name: "Collectors Networking Service",
   description: "Make beautiful websites regardless of your design experience.",
   navItems: [
     {
@@ -57,6 +74,27 @@ export const siteConfig = {
     {
       label: "Logout",
       href: "/logout",
+    },
+  ],
+  //ナビゲーションバーのユーザーメニュー
+  userMenuItems: [
+    { label: "マイページ",
+      href: "/personal",
+      classname: "h-14 gap-2",
+      icon: UserCircleIcon,
+      divider: true,
+    },
+    { label: "ヘルプ",
+      href: "/personal",
+      classname: "h-14 gap-2",
+      icon: HelpDocsIcon,
+      divider: false,
+    },
+    { label: "サポート",
+      href: "/personal",
+      classname: "h-14 gap-2",
+      icon: SupportIcon,
+      divider: false,
     },
   ],
   links: {

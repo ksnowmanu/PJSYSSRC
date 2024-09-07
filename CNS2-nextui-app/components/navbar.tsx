@@ -38,6 +38,7 @@ import {
   SupportIcon,
   BrandIcon,
 } from "@/components/icons";
+import { link } from "fs";
 
 export const Navbar = () => {
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
@@ -93,16 +94,31 @@ export const Navbar = () => {
         />
       </DropdownTrigger>
       <DropdownMenu aria-label="Profile Actions" variant="flat">
-        <DropdownItem key="profile" className="h-14 gap-2" startContent={<UserCircleIcon/>} showDivider>マイページ</DropdownItem>
+{/*       <DropdownMenu aria-label="Profile Actions" variant="flat" onAction={(key) => alert(key)}>
+        <DropdownItem key="personal" className="h-14 gap-2" startContent={<UserCircleIcon/>} showDivider>マイページ</DropdownItem>
         <DropdownItem key="settings" className="h-14 gap-2" startContent={<ThemeSwitch />} showDivider>表示モード切替</DropdownItem>
         <DropdownItem key="help_docs" className="h-14 gap-2" startContent={<HelpDocsIcon />}>ヘルプ</DropdownItem>
         <DropdownItem key="support" className="h-14 gap-2" startContent={<SupportIcon />}>サポート</DropdownItem>
+      </DropdownMenu>
+
+      https://teratail.com/questions/80byasbrgtkuf0
+      */}
+
+        {siteConfig.userMenuItems.map((item, index) => (
+            <DropdownItem key={index} className={item.classname} startContent={<item.icon />} showDivider={item.divider}>
+              <Link href={item.href}>
+                <p className="text-white">{item.label}</p>
+              </Link>
+            </DropdownItem>
+          ))}
+
+
       </DropdownMenu>
     </Dropdown>
   );
 
   return (
-    <NextUINavbar maxWidth="xl" position="sticky">
+    <NextUINavbar maxWidth="2xl" position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarItem className="sm:hidden basis-1 pl-0"><NavbarMenuToggle /></NavbarItem>
         <NavbarBrand className="gap-3 max-w-fit">

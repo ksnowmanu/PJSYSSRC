@@ -50,9 +50,9 @@ export default function IndexPage() {
           <div className="w-full h-full gap-6 grid grid-cols-12 grid-rows-3 gap-x-3 sm:gap-x-10">
 
             {/* 上段選択 */}
-            <div className="col-span-6 sm:col-start-2 sm:col-span-3 pt-12"><Contract1Cord/></div>
-            <div className="col-span-6 sm:col-span-3 pt-12"><Contract2Cord/></div>
-            <div className="col-span-0 sm:col-span-6 pt-12"></div>
+            <div className="col-span-6 lg:col-start-2 lg:col-span-3 pt-12"><Contract1Cord/></div>
+            <div className="col-span-6 lg:col-span-3 pt-12"><Contract2Cord/></div>
+            <div className="col-span-0 lg:col-span-6 pt-12"></div>
 
             {/* コメントエリア */}
             <div className="col-span-12 sm:col-span-12 inline-block text-center bg-black/30">
@@ -63,8 +63,8 @@ export default function IndexPage() {
             </div>
 
             {/* 下段選択 */}
-            <div className="col-span-6 sm:col-start-6 sm:col-span-3"><Contract3Cord/></div>
-            <div className="col-span-6 sm:col-span-3"><Contract4Cord/></div>
+            <div className="col-span-6 lg:col-start-6 lg:col-span-3"><Contract3Cord/></div>
+            <div className="col-span-6 lg:col-span-3"><Contract4Cord/></div>
           </div>
         </div>
       </section>
@@ -127,8 +127,8 @@ export default function IndexPage() {
             <RankFilterSelect/>
           </div>
 
-          <div className="gap-3 grid grid-cols-2 p-1 auto-rows-min">
-            <div className="col-span-2 sm:col-span-1">
+          <div className="gap-3 grid grid-cols-2 auto-rows-min sm:p-1">
+            <div className="col-span-2 lg:col-span-1">
               <div className="flex flex-row items-center justify-between py-3">
                 <div className="flex items-center space-x-1 pl-4">
                   <HandshakeIcon/>
@@ -167,7 +167,7 @@ export default function IndexPage() {
               <Tables/>
             </div>
 
-            <div className="col-span-2 sm:col-span-1">
+            <div className="col-span-2 lg:col-span-1">
               <div className="flex flex-row items-center justify-between py-3">
                 <div className="flex items-center space-x-1 pl-4">
                   <HandCoinIcon/>
