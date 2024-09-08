@@ -9,7 +9,7 @@ import {
 } from "@nextui-org/navbar";
 import { Button } from "@nextui-org/button";
 import { Kbd } from "@nextui-org/kbd";
-import { Link } from "@nextui-org/link";
+import { Link } from "@nextui-org/react";
 import { Input } from "@nextui-org/input";
 import { link as linkStyles } from "@nextui-org/theme";
 import NextLink from "next/link";
@@ -24,15 +24,12 @@ import { useDisclosure} from "@nextui-org/react";
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
 import {
-  TwitterIcon,
   TwitterXIcon,
   YoutubeIcon,
-  GithubIcon,
   DiscordIcon,
   HeartFilledIcon,
   CodiconSignIn,
   SearchIcon,
-  Logo,
   UserCircleIcon,
   HelpDocsIcon,
   SupportIcon,
@@ -40,8 +37,52 @@ import {
 } from "@/components/icons";
 import { link } from "fs";
 
+{/* ethereum接続に必要！ https://docs.ethers.org/v6/getting-started/ */}
+import { ethers } from "ethers";
+import { useEffect, useState } from 'react';
+import { WalletProvider, useWallet } from "@/components/user";
+
 export const Navbar = () => {
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
+
+  {/* ethereum接続用 */}
+  const [windowEthereum, setWindowEthereum] = useState();
+  const { walletAddress, saveWalletInfo } = useWallet();
+
+  useEffect(() => {
+    // ethereum接続用
+    const { ethereum } = window as any;
+    setWindowEthereum(ethereum);
+    // ローカルストレージのユーザーアドレスを呼び戻して再セット
+    const savedAddress = localStorage.getItem('walletAddress');
+    if (savedAddress) {
+      saveWalletInfo(savedAddress);
+    }
+  }, []);
+
+  async function LogIn() {
+    if (windowEthereum) {
+      try{
+        const provider = new ethers.BrowserProvider(windowEthereum);
+
+        // MetaMask requires requesting permission to connect users accounts
+        await provider.send('eth_requestAccounts', []).then(console.log);
+        const signer = await provider.getSigner(); // ユーザー情報取得
+        const address = await signer.getAddress(); // ユーザーのアドレスを取得
+        saveWalletInfo(address); // ウォレット情報を保存
+        
+        {/* コントラクト接続の時に利用
+        const contract = new ethers.Contract(
+          contractAddress,
+          artifact.abi,
+          provider
+        );
+        const contractWithSigner = contract.connect(signer);*/}
+      } catch(error) {
+        console.error("Error during login:", error)
+      }
+    }
+  };
 
   {/* 検索ボックス */}
   const searchInput = (
@@ -68,12 +109,10 @@ export const Navbar = () => {
   {/* ログインボタン */}
   const loginButton = (
     <Button
-      isExternal
-      as={Link}
       className="text-sm font-normal text-default-600 bg-default-100"
-      href={siteConfig.links.sponsor}
       startContent={<CodiconSignIn />}
       variant="flat"
+      onClick={LogIn}
     >
       Login
     </Button>
@@ -93,7 +132,7 @@ export const Navbar = () => {
           src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
         />
       </DropdownTrigger>
-      <DropdownMenu aria-label="Profile Actions" variant="flat">
+      <DropdownMenu aria-label="Profile Actions" variant="flat" disabledKeys={`${walletAddress ? ("") : ("0")}`}>
 {/*       <DropdownMenu aria-label="Profile Actions" variant="flat" onAction={(key) => alert(key)}>
         <DropdownItem key="personal" className="h-14 gap-2" startContent={<UserCircleIcon/>} showDivider>マイページ</DropdownItem>
         <DropdownItem key="settings" className="h-14 gap-2" startContent={<ThemeSwitch />} showDivider>表示モード切替</DropdownItem>
@@ -106,12 +145,11 @@ export const Navbar = () => {
 
         {siteConfig.userMenuItems.map((item, index) => (
             <DropdownItem key={index} className={item.classname} startContent={<item.icon />} showDivider={item.divider}>
-              <Link href={item.href}>
+              <Link href={`${item.href}?id=1&name=abc`}>
                 <p className="text-white">{item.label}</p>
               </Link>
             </DropdownItem>
           ))}
-
 
       </DropdownMenu>
     </Dropdown>

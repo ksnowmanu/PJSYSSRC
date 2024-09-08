@@ -1,7 +1,6 @@
 import { Link } from "@nextui-org/link";
 
 import { Head } from "./head";
-
 import { Navbar } from "@/components/navbar";
 import { Image } from "@nextui-org/image";
 

@@ -28,7 +28,7 @@ export const Tables = () => {
       case "id":
         return (
           <div>
-            <p className="text-bold text-sm text-center capitalize">{cellValue}</p>
+            <p className="text-bold text-sm sm:text-base text-center capitalize">{cellValue}</p>
           </div>
         );
       case "name":
@@ -44,13 +44,13 @@ export const Tables = () => {
       case "numtrade":
         return (
           <div className="flex flex-col">
-            <p className="text-bold text-sm text-right capitalize">{cellValue}</p>
+            <p className="text-bold text-md sm:text-base text-right capitalize">{cellValue}</p>
           </div>
         );
       case "tranval":
         return (
           <div className="flex flex-col">
-            <p className="text-bold text-md text-right capitalize">{cellValue}</p>
+            <p className="text-bold text-md sm:text-base text-right capitalize">{cellValue}</p>
           </div>
         );
         case "actions":
@@ -121,7 +121,7 @@ export const Tables = () => {
         {(item) => (
           <TableRow key={item.id}>
             {(columnKey) => 
-              <TableCell className={`${columns.find(col => col.uid === columnKey)?.classnameCommon}
+              <TableCell className={`${columns.find(col => col.uid === columnKey)?.classnameCommon} 
                                      ${columns.find(col => col.uid === columnKey)?.classnameD}`}>
                 {renderCell(item, columnKey)}
               </TableCell>}
