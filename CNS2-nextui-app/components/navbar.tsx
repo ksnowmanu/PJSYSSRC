@@ -71,6 +71,8 @@ export const Navbar = () => {
         const address = await signer.getAddress(); // ユーザーのアドレスを取得
         saveWalletInfo(address); // ウォレット情報を保存
         
+        // ★★★ここでusersマスターにアドレスを登録する！
+
         {/* コントラクト接続の時に利用
         const contract = new ethers.Contract(
           contractAddress,
