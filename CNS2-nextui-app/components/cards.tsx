@@ -6,6 +6,7 @@ import {
   TwitterXIcon,
   YoutubeIcon,
 } from "@/components/icons";
+import { ListItem } from '@/pages/api/users'; // ListItem 型の定義をインポート
 
 export const Contract1Cord = () => {
   return(
@@ -195,6 +196,33 @@ export const SupportCommunityCords = () => {
             <CardFooter className="text-small justify-center">
               {item.icon}
               <b>{item.title}</b>
+            </CardFooter>
+          </Card>
+        </Link>
+      ))}
+    </div>
+  )
+};
+
+export const PersonCords = ({ list }: { list: ListItem[] }) => {
+  return(
+    <div className="gap-6 grid grid-cols-2 sm:grid-cols-6">
+      {list.map((item, index) => (
+        <Link href={item.href}>
+          <Card className="w-full" shadow="sm" key={index} isPressable onPress={() => console.log("item pressed")}>
+            <CardBody className="overflow-visible p-0">
+              <Image
+                isZoomed
+                shadow="sm"
+                radius="lg"
+                width="100%"
+                alt={item.username}
+                className="w-full object-cover h-[140px]"
+                src={item.profile_image_url}
+              />
+            </CardBody>
+            <CardFooter className="text-small justify-center">
+              <b>{item.username}</b>
             </CardFooter>
           </Card>
         </Link>

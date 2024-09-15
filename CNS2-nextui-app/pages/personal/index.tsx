@@ -1,8 +1,12 @@
-import { title } from "@/components/primitives";
-import { Button } from "@nextui-org/button";
-import DefaultLayout from "@/layouts/default";
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import { Button } from "@nextui-org/button";
+import { Avatar } from "@nextui-org/avatar"
+import DefaultLayout from "@/layouts/default";
+import { title } from "@/components/primitives";
 import { WalletProvider, useWallet } from "@/components/user";
+import { PersonCords } from "@/components/cards"
+import { ListItem } from '../api/users'; // ListItem 型の定義をインポート
 
 export default function PersonalPage() {
   
@@ -12,18 +16,31 @@ export default function PersonalPage() {
   const { walletAddress } = useWallet();
 
   {/* SQL データ取得（select文） */}
-  const fetchUsers = async () => {
-    const res = await fetch('/api/users', {
+  const [listItems, setListItems] = useState<ListItem[]>([]);
+  const [mylistItem, setMyListItem] = useState<ListItem[]>([]);
+  const fetchUsers = async (address: string) => {
+    const res = await fetch(`/api/users?wallet_address=${encodeURIComponent(address)}`, {
       method: 'GET',
     });
+    if (!res.ok) {
+      throw new Error(`Failed to fetch users: ${res.statusText}`);
+    }
     const data = await res.json();
-    console.log(data.users);
+    console.log(data.userlistItems);
+    // ListItem 型でデータを保存
+    if (address === "") {
+      setListItems(data.userlistItems);
+      //console.log('After setting listItems:', listItems);  // ここでのログを確認
+    } else {
+      setMyListItem(data.userlistItems);
+      //console.log('After setting myListItem:', mylistItem);  // ここでのログを確認
+    }
   };
 
   {/* SQL データ登録（insert文 or update文）※キー重複自動判定 */}
-  const updateUsers = async (mode: string, newaddress: string, newName: string) => {
+  const updateUsers = async (mode: string, newaddress: string, newName: string, newicon: string, newbanner: string) => {
     try {
-      const res = await fetch(`/api/users?mode=${mode}&wallet_address=${newaddress}&username=${newName}`, {
+      const res = await fetch(`/api/users?mode=${mode}&wallet_address=${newaddress}&username=${newName}&profile_image_url=${newicon}&profile_banner_url=${newbanner}`, {
         method: 'POST',
         //headers: {
         //  'Content-Type': 'application/json',
@@ -58,9 +75,39 @@ export default function PersonalPage() {
     }
   };
 
+  // ページ読み込み時にユーザー情報を取得する
+  useEffect(() => {
+    //console.log("URL_id:", {id});
+    if (typeof id === 'string') {
+      fetchUsers(`${id}`);
+    }
+    fetchUsers("");
+  }, [router.query]); // 依存リストを空にすると最初のレンダリング時にのみ実行される
+
   return (
     <WalletProvider>
     <DefaultLayout>
+
+      {/* ★コントラクト選択 */}
+      <section className="flex flex-row items-center justify-center gap-1 p-0 h-[25rem]">
+        {/* 背景画像は画面読み込み時にユーザーマスタから取得した画像をセットstyle記述はreact記法 */}
+        <div className="flex-row bg-cover bg-center h-full w-full" style={{ backgroundImage: `url(${mylistItem[0]?.profile_banner_url})`}as React.CSSProperties}>
+          <div className="w-full h-full gap-6 grid grid-cols-12 grid-rows-1 gap-x-3 sm:gap-x-10">
+
+            {/* 上段選択 */}
+            <div className="col-span-12 sm:col-span-12"></div>
+
+            {/* コメントエリア */}
+            <div className="col-span-12 sm:col-span-12"></div>
+
+            {/* 下段選択 */}
+            <div className="col-span-6 lg:col-start-9 lg:col-span-3">
+              <Avatar src={mylistItem[0]?.profile_image_url} className="w-20 h-20 text-large" />
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
         <div className="inline-block max-w-lg text-center justify-center">
           <h1 className={title()}>Personal</h1>
@@ -73,19 +120,25 @@ export default function PersonalPage() {
               <p>No Wallet Connected</p>
             )}
           </h3>
+
         </div>
 
-        <Button onPress={fetchUsers}>
+        <Button onPress={() => fetchUsers(`${id}`)}>
           取得
         </Button>
 
-        <Button onPress={() => updateUsers("0","testaddress999","bbbbCCCC")}>
+        <Button onPress={() => updateUsers("0","0x45f630756a33b36A2c09873766C3cC50C1B7C161","ミスターK","no_icon.png","test_banner.png")}>
           登録
         </Button>
 
         <Button onPress={() => deleteUsers("testaddress999")}>
           削除
         </Button>
+
+        <PersonCords list={listItems} />
+        <PersonCords list={mylistItem} />
+
+        
 
       </section>
     </DefaultLayout>

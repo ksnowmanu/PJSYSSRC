@@ -26,7 +26,6 @@ import { ThemeSwitch } from "@/components/theme-switch";
 import {
   TwitterXIcon,
   YoutubeIcon,
-  DiscordIcon,
   HeartFilledIcon,
   CodiconSignIn,
   SearchIcon,
@@ -147,7 +146,7 @@ export const Navbar = () => {
 
         {siteConfig.userMenuItems.map((item, index) => (
             <DropdownItem key={index} className={item.classname} startContent={<item.icon />} showDivider={item.divider}>
-              <Link href={`${item.href}?id=1&name=abc`}>
+              <Link href={`${item.href}?id=${walletAddress}&name=abc`}>
                 <p className="text-white">{item.label}</p>
               </Link>
             </DropdownItem>
