@@ -1,5 +1,5 @@
 import * as React from "react";
-
+import { Tooltip } from "@nextui-org/tooltip";
 import { IconSvgProps } from "@/types";
 import Image from 'next/image';
 
@@ -233,7 +233,9 @@ export const YoutubeIcon: React.FC<IconSvgProps> = ({
   ...props
 }) => {
   return (
+    <Tooltip content="Youtube">
     <svg xmlns="http://www.w3.org/2000/svg" width={size || width} height={size || height} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="m10 15l5.19-3L10 9zm11.56-7.83c.13.47.22 1.1.28 1.9c.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83c-.25.9-.83 1.48-1.73 1.73c-.47.13-1.33.22-2.65.28c-1.3.07-2.49.1-3.59.1L12 19c-4.19 0-6.8-.16-7.83-.44c-.9-.25-1.48-.83-1.73-1.73c-.13-.47-.22-1.1-.28-1.9c-.07-.8-.1-1.49-.1-2.09L2 12c0-2.19.16-3.8.44-4.83c.25-.9.83-1.48 1.73-1.73c.47-.13 1.33-.22 2.65-.28c1.3-.07 2.49-.1 3.59-.1L12 5c4.19 0 6.8.16 7.83.44c.9.25 1.48.83 1.73 1.73"></path></svg>
+    </Tooltip>
   )
 };
 
@@ -245,7 +247,37 @@ export const TwitterXIcon: React.FC<IconSvgProps> = ({
   ...props
 }) => {
   return (
+    <Tooltip content="X(twitter)">
     <svg xmlns="http://www.w3.org/2000/svg" width={size || width} height={size || height} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M18.205 2.25h3.308l-7.227 8.26l8.502 11.24H16.13l-5.214-6.817L4.95 21.75H1.64l7.73-8.835L1.215 2.25H8.04l4.713 6.231zm-1.161 17.52h1.833L7.045 4.126H5.078z"></path></svg>
+    </Tooltip>
+  )
+};
+
+// 追加：インスタグラム
+export const InstagramIcon: React.FC<IconSvgProps> = ({
+  size = 24,
+  width,
+  height,
+  ...props
+}) => {
+  return (
+    <Tooltip content="Instagram">
+    <svg xmlns="http://www.w3.org/2000/svg" width={size || width} height={size || width} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4zm9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8A1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5a5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3"></path></svg>
+    </Tooltip>
+  )
+};
+
+// 追加：tiktok
+export const TiktokIcon: React.FC<IconSvgProps> = ({
+  size = 24,
+  width,
+  height,
+  ...props
+}) => {
+  return (
+    <Tooltip content="Tiktok">
+    <svg xmlns="http://www.w3.org/2000/svg" width={size || width} height={size || width} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M16.6 5.82s.51.5 0 0A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 0 1-2.59 2.5c-1.42 0-2.6-1.16-2.6-2.6c0-1.72 1.66-3.01 3.37-2.48V9.66c-3.45-.46-6.47 2.22-6.47 5.64c0 3.33 2.76 5.7 5.69 5.7c3.14 0 5.69-2.55 5.69-5.7V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3s-1.88.09-3.24-1.48"></path></svg>
+    </Tooltip>
   )
 };
 
@@ -257,7 +289,23 @@ export const FacebookIcon: React.FC<IconSvgProps> = ({
   ...props
 }) => {
   return (
+    <Tooltip content="Facebook">
     <svg xmlns="http://www.w3.org/2000/svg" width={size || width} height={size || width} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95"></path></svg>
+    </Tooltip>
+  )
+};
+
+// 追加：ブログ
+export const BlogIcon: React.FC<IconSvgProps> = ({
+  size = 24,
+  width,
+  height,
+  ...props
+}) => {
+  return (
+    <Tooltip content="Blog">
+    <svg xmlns="http://www.w3.org/2000/svg" width={size || width} height={size || width} viewBox="0 0 32 32" {...props}><path fill="currentColor" d="M4 24h10v2H4zm0-6h10v2H4zm22-4H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h20a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2M6 6v6h20V6zm20 22h-6a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2m-6-8v6h6v-6z"></path></svg>
+    </Tooltip>
   )
 };
 
@@ -305,11 +353,13 @@ export const UserSquareIcon: React.FC<IconSvgProps> = ({
   ...props
 }) => {
   return (
+    <Tooltip content="Collector">
     <svg xmlns="http://www.w3.org/2000/svg" width={size || width} height={size || width} viewBox="0 0 14 14" {...props}><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><circle cx="7" cy="5.5" r="2.5"></circle><path d="M2.1 13.5a5 5 0 0 1 9.8 0"></path><rect width="13" height="13" x=".5" y=".5" rx="1"></rect></g></svg>
+    </Tooltip>
   )
 };
 
-// 追加：カメラ
+// 追加：クリエイター
 export const CameraIcon: React.FC<IconSvgProps> = ({
   size = 24,
   width,
@@ -317,7 +367,9 @@ export const CameraIcon: React.FC<IconSvgProps> = ({
   ...props
 }) => {
   return (
+    <Tooltip content="Creator">
     <svg xmlns="http://www.w3.org/2000/svg" width={size || width} height={size || width} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M12 18q2.075 0 3.538-1.462Q17 15.075 17 13q0-2.075-1.462-3.538Q14.075 8 12 8Q9.925 8 8.463 9.462Q7 10.925 7 13q0 2.075 1.463 3.538Q9.925 18 12 18Zm0-2q-1.25 0-2.125-.875T9 13q0-1.25.875-2.125T12 10q1.25 0 2.125.875T15 13q0 1.25-.875 2.125T12 16Zm6-6q.425 0 .712-.288Q19 9.425 19 9t-.288-.713Q18.425 8 18 8t-.712.287Q17 8.575 17 9t.288.712Q17.575 10 18 10ZM4 21q-.825 0-1.412-.587Q2 19.825 2 19V7q0-.825.588-1.412Q3.175 5 4 5h3.15L8.7 3.325q.15-.15.337-.238Q9.225 3 9.425 3h5.15q.2 0 .388.087q.187.088.337.238L16.85 5H20q.825 0 1.413.588Q22 6.175 22 7v12q0 .825-.587 1.413Q20.825 21 20 21Z"></path></svg>
+    </Tooltip>
   )
 };
 
@@ -329,7 +381,9 @@ export const ShopIcon: React.FC<IconSvgProps> = ({
   ...props
 }) => {
   return (
+    <Tooltip content="Shop">
     <svg xmlns="http://www.w3.org/2000/svg" width={size || width} height={size || width} viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M21.025 11.05V19q0 .825-.587 1.413T19.025 21h-14q-.825 0-1.412-.587T3.025 19v-7.95q-.575-.525-.887-1.35t-.013-1.8l1.05-3.4q.2-.65.713-1.075T5.075 3h13.9q.675 0 1.175.413t.725 1.087l1.05 3.4q.3.975-.012 1.775t-.888 1.375m-6.8-1.05q.675 0 1.025-.462t.275-1.038l-.55-3.5h-1.95v3.7q0 .525.35.913t.85.387m-4.5 0q.575 0 .938-.388t.362-.912V5h-1.95l-.55 3.5q-.1.6.262 1.05t.938.45m-4.45 0q.45 0 .787-.325t.413-.825L7.025 5h-1.95l-1 3.35q-.15.5.162 1.075T5.275 10m13.5 0q.725 0 1.05-.575t.15-1.075L18.925 5h-1.9l.55 3.85q.075.5.413.825t.787.325m-13.75 9h14v-7.05q-.125.05-.162.05h-.088q-.675 0-1.187-.225t-1.013-.725q-.45.45-1.025.7t-1.225.25q-.675 0-1.263-.25t-1.037-.7q-.425.45-.987.7T9.825 12q-.725 0-1.312-.25t-1.038-.7q-.525.525-1.037.738T5.275 12h-.112q-.063 0-.138-.05zm14 0h-14z"></path></svg>
+    </Tooltip>
   )
 };
 

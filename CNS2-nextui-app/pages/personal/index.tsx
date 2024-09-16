@@ -2,11 +2,21 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Button } from "@nextui-org/button";
 import { Avatar } from "@nextui-org/avatar"
+import { Link } from "@nextui-org/react";
 import DefaultLayout from "@/layouts/default";
 import { title } from "@/components/primitives";
 import { WalletProvider, useWallet } from "@/components/user";
 import { PersonCords } from "@/components/cards"
 import { ListItem } from '../api/users'; // ListItem 型の定義をインポート
+import {
+  TwitterXIcon,
+  InstagramIcon,
+  TiktokIcon,
+  YoutubeIcon,
+  FacebookIcon,
+  BlogIcon,
+  ShopIcon,
+} from "@/components/icons";
 
 export default function PersonalPage() {
   
@@ -91,20 +101,54 @@ export default function PersonalPage() {
       {/* ★コントラクト選択 */}
       <section className="flex flex-row items-center justify-center gap-1 p-0 h-[25rem]">
         {/* 背景画像は画面読み込み時にユーザーマスタから取得した画像をセットstyle記述はreact記法 */}
-        <div className="flex-row bg-cover bg-center h-full w-full" style={{ backgroundImage: `url(${mylistItem[0]?.profile_banner_url})`}as React.CSSProperties}>
-          <div className="w-full h-full gap-6 grid grid-cols-12 grid-rows-1 gap-x-3 sm:gap-x-10">
+        <div className="bg-cover bg-center h-full w-full" style={{ backgroundImage: `url(${mylistItem[0]?.profile_banner_url})`}as React.CSSProperties}>
+          <div className="flex flex-row w-full h-full gap-6 grid grid-cols-12 grid-rows-3 gap-x-3 sm:gap-x-10">
 
-            {/* 上段選択 */}
+            {/* 上段エリア */}
             <div className="col-span-12 sm:col-span-12"></div>
 
-            {/* コメントエリア */}
-            <div className="col-span-12 sm:col-span-12"></div>
-
-            {/* 下段選択 */}
-            <div className="col-span-6 lg:col-start-9 lg:col-span-3">
-              <Avatar src={mylistItem[0]?.profile_image_url} className="w-20 h-20 text-large" />
+            {/* 中段エリア */}
+            <div className="col-span-12 lg:col-span-6 bg-black/30 flex flex-row items-center pl-2">
+              <Avatar src={mylistItem[0]?.profile_image_url} className="w-20 h-20 text-large" isBordered radius="lg"/>
+              <div className="flex flex-col inline-block text-left pl-2">
+                <h1 className="text-3xl lg:text-4xl font-bold text-orange-400">{mylistItem[0]?.user_category} :</h1>
+                <h1 className="text-2xl lg:text-3xl font-bold">{mylistItem[0]?.username}</h1>
+              </div>
             </div>
+            <div className="col-span-0 lg:col-span-6"></div>
+
+            {/* 下段エリア */}
+            <div className="col-span-6"></div>
+            <div className="col-span-6"></div>
           </div>
+        </div>
+      </section>
+
+      {/* ★SNSショートカットエリア */}
+      <section className="flex flex-row items-center justify-center gap-4 py-2">
+        <div className="flex flex-row items-center justify-center gap-2">
+          SNS LINKS! : 
+          <Link isExternal href={mylistItem[0]?.x_address}>
+            <TwitterXIcon className="text-default-500" />
+          </Link>
+          <Link isExternal href={mylistItem[0]?.instagram_address}>
+            <InstagramIcon className="text-default-500" />
+          </Link>
+          <Link isExternal href={mylistItem[0]?.tiktok_address}>
+            <TiktokIcon className="text-default-500" />
+          </Link>
+          <Link isExternal href={mylistItem[0]?.youtube_address}>
+            <YoutubeIcon className="text-default-500" />
+          </Link>
+          <Link isExternal href={mylistItem[0]?.facebook_address}>
+            <FacebookIcon className="text-default-500" />
+          </Link>
+          <Link isExternal href={mylistItem[0]?.blog_address}>
+            <BlogIcon className="text-default-500" />
+          </Link>
+          <Link isExternal href={mylistItem[0]?.homepage_address}>
+            <ShopIcon className="text-default-500" />
+          </Link>
         </div>
       </section>
 

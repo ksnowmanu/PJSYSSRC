@@ -31,6 +31,7 @@
 		"@nextui-org/table": "^2.0.39",
 		"@nextui-org/tabs": "^2.0.35",
 		"@nextui-org/theme": "2.2.9",
+		"@nextui-org/tooltip": "^2.0.41",
 		"@react-aria/visually-hidden": "3.8.12",
 		"@vercel/postgres": "^0.10.0",
 		"clsx": "2.1.1",

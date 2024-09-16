@@ -4,7 +4,12 @@ import { Button } from "@nextui-org/button";
 import { Link } from "@nextui-org/link";
 import {
   TwitterXIcon,
+  InstagramIcon,
+  TiktokIcon,
   YoutubeIcon,
+  FacebookIcon,
+  BlogIcon,
+  ShopIcon,
 } from "@/components/icons";
 import { ListItem } from '@/pages/api/users'; // ListItem 型の定義をインポート
 
@@ -206,26 +211,45 @@ export const SupportCommunityCords = () => {
 
 export const PersonCords = ({ list }: { list: ListItem[] }) => {
   return(
-    <div className="gap-6 grid grid-cols-2 sm:grid-cols-6">
+    <div className="gap-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
       {list.map((item, index) => (
-        <Link href={item.href}>
-          <Card className="w-full" shadow="sm" key={index} isPressable onPress={() => console.log("item pressed")}>
-            <CardBody className="overflow-visible p-0">
+        <Card className="w-full" shadow="sm" key={index} isPressable onPress={() => console.log("item pressed")}>
+          <Link href={item.href}>
+            <CardBody className="flex flex-rows overflow-visible text-center text-default-500 text-xs lg:text-sm p-0">
               <Image
                 isZoomed
                 shadow="sm"
                 radius="lg"
                 width="100%"
                 alt={item.username}
-                className="w-full object-cover h-[140px]"
+                className="w-full object-cover"
                 src={item.profile_image_url}
               />
-            </CardBody>
-            <CardFooter className="text-small justify-center">
               <b>{item.username}</b>
+            </CardBody>  
+          </Link>
+            <CardFooter className="text-xs justify-center">
+              <Link isExternal href={item.x_address}>
+                <TwitterXIcon className="text-default-500"/>
+              </Link>
+              <Link isExternal href={item.instagram_address}>
+                <InstagramIcon className="text-default-500" />
+              </Link>
+              <Link isExternal href={item.tiktok_address}>
+                <TiktokIcon className="text-default-500" />
+              </Link>
+              <Link isExternal href={item.youtube_address}>
+                <YoutubeIcon className="text-default-500" />
+              </Link>
+              <Link isExternal href={item.facebook_address}>
+                <FacebookIcon className="text-default-500" />
+              </Link>
+              <Link isExternal href={item.blog_address}>
+                <BlogIcon className="text-default-500" />
+              </Link>
             </CardFooter>
           </Card>
-        </Link>
+        
       ))}
     </div>
   )

@@ -7,6 +7,7 @@ export type ListItem = {
   href: string;
   username: string;
   email: string;
+  user_category: string;
   profile_image_url: string;
   profile_banner_url: string;
   x_address: string;
@@ -51,6 +52,7 @@ export default async function Handler(
           href: `/personal?id=${user.wallet_address}`,
           username: user.username,
           email: user.email,
+          user_category: user.user_category,
           profile_image_url: user.profile_image_url,
           profile_banner_url: user.profile_banner_url,
           x_address: user.x_address,
