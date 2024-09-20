@@ -111,7 +111,7 @@ export default function PersonalPage() {
             <div className="col-span-12 lg:col-span-6 bg-black/30 flex flex-row items-center pl-2">
               <Avatar src={mylistItem[0]?.profile_image_url} className="w-20 h-20 text-large" isBordered radius="lg"/>
               <div className="flex flex-col inline-block text-left pl-2">
-                <h1 className="text-3xl lg:text-4xl font-bold text-orange-400">{mylistItem[0]?.user_category} :</h1>
+                <h1 className="text-3xl lg:text-4xl font-bold text-orange-400">{mylistItem[0]?.user_category}</h1>
                 <h1 className="text-2xl lg:text-3xl font-bold">{mylistItem[0]?.username}</h1>
               </div>
             </div>
@@ -178,10 +178,10 @@ export default function PersonalPage() {
         <Button onPress={() => deleteUsers("testaddress999")}>
           削除
         </Button>
-
+{/*
         <PersonCords list={listItems} />
         <PersonCords list={mylistItem} />
-
+ */}
         
 
       </section>

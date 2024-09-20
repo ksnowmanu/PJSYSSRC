@@ -159,9 +159,11 @@ export default function IndexPage() {
                 </div>
 
                 <div className="flex flex-row-reverse items-end">
-                  <Button startContent={<SearchIcon/>}>
-                    一覧表示
-                  </Button>
+                  <Link href={`${siteConfig.internalLinks.users}?id=1234&name=abc`}>
+                    <Button startContent={<SearchIcon/>}>
+                      一覧表示
+                    </Button>
+                  </Link>
                 </div>
               </div>
               <Tables/>
@@ -174,9 +176,11 @@ export default function IndexPage() {
                   <span>保有資産</span>
                 </div>
                 <div className="col-span-2 flex flex-row-reverse items-end">
-                  <Button startContent={<SearchIcon/>}>
-                    一覧表示
-                  </Button>
+                  <Link href={`${siteConfig.internalLinks.users}?id=1234&name=abc`}>
+                    <Button startContent={<SearchIcon/>}>
+                      一覧表示
+                    </Button>
+                  </Link>
                 </div>
               </div>
               <Tables/>

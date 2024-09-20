@@ -10,6 +10,7 @@ import {
   SearchIcon,
   Logo,
   UserCircleIcon,
+  UserSquareIcon,
   HelpDocsIcon,
   SupportIcon,
   BrandIcon,
@@ -17,29 +18,40 @@ import {
 
 export type SiteConfig = typeof siteConfig;
 
+const internalLinks = {
+  home: "/",
+  docs: "/docs",
+  pricing: "/pricing",
+  blog: "/blog", //削除予定⇒外部に用意
+  about: "/about",
+  users: "/users",
+  personal: "personal",
+};
+
 export const siteConfig = {
   name: "Collectors Networking Service",
   description: "Make beautiful websites regardless of your design experience.",
   navItems: [
     {
       label: "Home",
-      href: "/",
+      href: internalLinks.home,
     },
     {
       label: "Docs",
-      href: "/docs",
+      href: internalLinks.docs,
     },
     {
       label: "Pricing",
-      href: "/pricing",
+      href: internalLinks.pricing,
     },
+    //削除予定
     {
       label: "Blog",
-      href: "/blog",
+      href: internalLinks.blog,
     },
     {
       label: "About",
-      href: "/about",
+      href: internalLinks.about,
     },
   ],
   navMenuItems: [
@@ -79,7 +91,7 @@ export const siteConfig = {
   //ナビゲーションバーのユーザーメニュー
   userMenuItems: [
     { label: "マイページ",
-      href: "/personal",
+      href: internalLinks.personal,
       classname: "h-14 gap-2",
       icon: UserCircleIcon,
       divider: true,
@@ -106,4 +118,5 @@ export const siteConfig = {
     discord: "https://discord.gg/9b6yyZKmH4",
     sponsor: "https://patreon.com/jrgarciadev",
   },
+  internalLinks: internalLinks,
 };
