@@ -8,6 +8,7 @@ import { title } from "@/components/primitives";
 import { WalletProvider, useWallet } from "@/components/user";
 import { PersonCords } from "@/components/cards"
 import { ListItem } from '../api/users'; // ListItem 型の定義をインポート
+import { getNFTContractsAndTokenIds } from '../api/ethers';
 import {
   TwitterXIcon,
   InstagramIcon,
@@ -19,6 +20,9 @@ import {
 } from "@/components/icons";
 
 export default function PersonalPage() {
+
+  {/* ethereum接続用 */}
+  const [windowEthereum, setWindowEthereum] = useState();
   
   {/* URLクエリパラメータを取得 */}
   const router = useRouter()
@@ -87,11 +91,17 @@ export default function PersonalPage() {
 
   // ページ読み込み時にユーザー情報を取得する
   useEffect(() => {
+    // VercelPostgres接続用
     //console.log("URL_id:", {id});
     if (typeof id === 'string') {
       fetchUsers(`${id}`);
     }
     fetchUsers("");
+
+    // ethereum接続用
+    const { ethereum } = window as any;
+    setWindowEthereum(ethereum);
+
   }, [router.query]); // 依存リストを空にすると最初のレンダリング時にのみ実行される
 
   return (
@@ -168,7 +178,11 @@ export default function PersonalPage() {
         </div>
 
         <Button onPress={() => fetchUsers(`${id}`)}>
-          取得
+          取得id
+        </Button>
+        
+        <Button onPress={getNFTContractsAndTokenIds}>
+          取得log
         </Button>
 
         <Button onPress={() => updateUsers("0","0x45f630756a33b36A2c09873766C3cC50C1B7C161","ミスターK","no_icon.png","test_banner.png")}>
