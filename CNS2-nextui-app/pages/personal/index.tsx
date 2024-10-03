@@ -6,9 +6,9 @@ import { Link } from "@nextui-org/react";
 import DefaultLayout from "@/layouts/default";
 import { title } from "@/components/primitives";
 import { WalletProvider, useWallet } from "@/components/user";
-import { PersonCords } from "@/components/cards"
+import { NftCords, PageNftCords } from "@/components/cards";
 import { ListItem } from '../api/users'; // ListItem 型の定義をインポート
-import { getNFTContractsAndTokenIds } from '../api/ethers';
+import { ListNft, getNFTContractsAndTokenIds, getNFTTransactionValues, getNFTTransactionsDatetime, fetchNFTMetas } from '../api/ethers';
 import {
   TwitterXIcon,
   InstagramIcon,
@@ -22,11 +22,13 @@ import {
 export default function PersonalPage() {
 
   {/* ethereum接続用 */}
-  const [windowEthereum, setWindowEthereum] = useState();
+  //const [windowEthereum, setWindowEthereum] = useState();
+  const [ownNFTs, setOwnNFTs] = useState<{ contractAddress: string; tokenId: string; standard: string; transactionHash: string }[]>([]);
+  const [listNFTs, setListNFTs] = useState<ListNft[]>([]);
   
   {/* URLクエリパラメータを取得 */}
-  const router = useRouter()
-  const { id, name } = router.query
+  const router = useRouter();
+  const { id } = router.query;
   const { walletAddress } = useWallet();
 
   {/* SQL データ取得（select文） */}
@@ -91,18 +93,58 @@ export default function PersonalPage() {
 
   // ページ読み込み時にユーザー情報を取得する
   useEffect(() => {
-    // VercelPostgres接続用
-    //console.log("URL_id:", {id});
-    if (typeof id === 'string') {
-      fetchUsers(`${id}`);
+    const fetchData = async () => {
+      if (typeof id === 'string') {
+        // VercelPostgres接続⇒ユーザーの登録情報取得
+        fetchUsers(`${id}`).then(() => {
+          // ページユーザーのEthereumログから所有nftリストを取得
+          // メタ情報取得はコントラクト操作とipfs接続(meta.json読込み)が必要であり時間がかかるため、別useEffectで逐次処理
+          getNFTContractsAndTokenIds(`${id}`).then((ownedTokens) => {
+            //getNFTTransactions(ownedTokens).then((nfts) => {
+            //  // dateTimeで降順にソート
+            //  const sortedNFTs = nfts.sort((a, b) => {
+            //    const dateA = a.dateTime ? new Date(a.dateTime).getTime() : new Date('1900-01-01').getTime();
+            //    const dateB = b.dateTime ? new Date(b.dateTime).getTime() : new Date('1900-01-01').getTime();
+            //    return dateB - dateA; // 降順ソート
+            //  });
+              console.log('setOwnNFTs called with:', ownedTokens);
+              setOwnNFTs(ownedTokens);
+            });
+          });
+        };
+      };
+
+  fetchData();
+
+  }, [id]); // 依存リストを空にすると最初のレンダリング時にのみ実行される
+
+  // メタ情報を取得
+  useEffect(() => {
+    console.log('length:', ownNFTs.length);
+    const fetchData = async () => {
+      if (!ownNFTs || ownNFTs.length === 0) return;  // ownNFTsが存在する場合のみ実行
+
+      //await new Promise((resolve) => setTimeout(resolve, 1000)); // 1秒遅延
+      const batchSize = 5; // バッチサイズを設定
+      for (let i = 0; i < ownNFTs.length; i += batchSize) {
+        const batch = ownNFTs.slice(i, i + batchSize).map(({ contractAddress, tokenId, standard, transactionHash }) => ({
+          contractAddress,
+          tokenId,
+          standard,
+          transactionHash,
+        }));
+        try {
+          const metadata = await fetchNFTMetas(batch); // バッチごとにメタ情報を取得
+          setListNFTs((prevData) => [...prevData, ...metadata]); // 取得したメタデータを即座に追加
+        } catch (error) {
+          console.error('Error fetching NFT metadata:', error);
+        }
+        await new Promise((resolve) => setTimeout(resolve, 250)); // プロバイダ(infura)側のリクエスト制限に対応
+      }
     }
-    fetchUsers("");
 
-    // ethereum接続用
-    const { ethereum } = window as any;
-    setWindowEthereum(ethereum);
-
-  }, [router.query]); // 依存リストを空にすると最初のレンダリング時にのみ実行される
+    fetchData();
+  }, [ownNFTs]);
 
   return (
     <WalletProvider>
@@ -166,7 +208,6 @@ export default function PersonalPage() {
         <div className="inline-block max-w-lg text-center justify-center">
           <h1 className={title()}>Personal</h1>
           <h2>{id}</h2>
-          <h2>{name}</h2>
           <h3>
             {walletAddress ? (
               <p>Connected Wallet Address: {walletAddress}</p>
@@ -181,7 +222,7 @@ export default function PersonalPage() {
           取得id
         </Button>
         
-        <Button onPress={getNFTContractsAndTokenIds}>
+        <Button>
           取得log
         </Button>
 
@@ -192,11 +233,8 @@ export default function PersonalPage() {
         <Button onPress={() => deleteUsers("testaddress999")}>
           削除
         </Button>
-{/*
-        <PersonCords list={listItems} />
-        <PersonCords list={mylistItem} />
- */}
-        
+
+        <PageNftCords list={listNFTs} />
 
       </section>
     </DefaultLayout>

@@ -5,21 +5,14 @@
 import { ethers, getAddress, AbiCoder } from "ethers";
 import { useEffect, useState } from 'react';
 import { WalletProvider, useWallet } from "@/components/user";
+import { convIPFStoHttp } from "../api/ipfs";
+import { Akaya_Kanadaka } from "next/font/google";
 
 // プロバイダを設定（例: Infuraのプロバイダ）
 const provider = new ethers.JsonRpcProvider('https://mainnet.infura.io/v3/13f6be12da9247fd832ed1033795311e'); // メインネット
 //const provider = new ethers.JsonRpcProvider('https://sepolia.infura.io/v3/13f6be12da9247fd832ed1033795311e'); // テストネットsepolia
 
-const abi = [
-  "function tokenURI(uint256 tokenId) external view returns (string)", // ERC721
-  "function uri(uint256 id) external view returns (string)",           // ERC1155
-  "function supportsInterface(bytes4 interfaceID) external view returns (bool)" // ERC165 (supportsInterface)
-];
-
-// ABIデコーダー
-const abiCoder = new AbiCoder();
-
-// イベントのシグネチャ
+// Ethereumイベントのシグネチャ
 const erc721TransferEventSignature = ethers.id("Transfer(address,address,uint256)"); // ERC721 Transfer
 //const erc1155TransferSingleEventSignature = ethers.id("TransferSingle(address operator, address from, address to, uint256 id, uint256 value)");   // ERC1155 TransferSingle
 //const erc1155TransferSingleEventSignature2 = ethers.id("TransferSingle(address indexed _operator, address indexed _from, address indexed _to, uint256 _id, uint256 _value)");   // ERC1155 TransferSingle
@@ -29,70 +22,163 @@ const erc721TransferEventSignature = ethers.id("Transfer(address,address,uint256
 const erc1155TransferSingleEventSignature = "0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62";   // ethers.idが正しく動作しないので直接シグネチャを指定 ERC1155 TransferSingle
 const erc1155TransferBatchEventSignature = ethers.id("TransferBatch(address operator, address from, address to, uint256[] ids, uint256[] values)"); // ERC1155 TransferBatch
 
+// コントラクト設定
+const abi = [
+  "function tokenURI(uint256 tokenId) external view returns (string)", // ERC721
+  "function uri(uint256 id) external view returns (string)",           // ERC1155
+  "function supportsInterface(bytes4 interfaceID) external view returns (bool)" // ERC165 (supportsInterface)
+];
+
+// ABIデコーダー
+const abiCoder = new AbiCoder();
+
+// OpenSeaコントラクトアドレス
+const openSeaContractAddresses = [
+  '0x495f947276749ce646f68ac8c248420045cb7b5e',
+  // その他のOpenSeaコントラクトアドレスを追加
+];
+// OpenSeaのAPI設定 Endpoint for fetching NFT metadata for a single NFT: https://docs.opensea.io/reference/get_nft
+const openSeaAPIUrl = 'https://api.opensea.io/api/v2/chain/ethereum';
+const openSeaAPIUrlContract = '/contract/'
+const openSeaAPIUrlNfts = '/nfts/'
+const openSeaAPIOptions = {
+  headers: {
+    'X-API-KEY': '7bb8bb68a83e4b98b1d16257f87be1f3',
+    'Content-Type': 'application/json',
+  }
+};
+
 // ListItem 型の定義
 export type ListNft = {
   contractAddress: string;
+  standard: string;
   tokenId: string;
+  tokenValue: string;
+  tokenURI: string;
+  href: string;
+  transactionHash: string;
+  metadataStatus: string;
   metaName: string;
   metaDescription: string;
   metaImage: string;
   metaAttributes: string[];
 };
 
+{/*
+  必要なものメモ
+  ⇒次ページにはコントラクトアドレスとトークンIDだけを渡して、行った先でtokenURIを取得する？
+  ⇒そもそも次ページとかではなく、指定したNFTの詳細を表示してアクションを実行できる子Windowにする？
+  */}
+
+
 // ウォレットアドレスを指定　←後で関数の引数に組み込む
-const walletAddress = "0xCF00eC2B327BCfA2bee2D8A5Aee0A7671d08A283";
+//const walletAddress = "0xCF00eC2B327BCfA2bee2D8A5Aee0A7671d08A283";
 
 // 遅延処理用の関数
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// --------------------------------------------------------------
 // 指定NFTのコントラクトアドレス＋トークンIDからメタデータを取得する
-export async function fetchNFTMetas(ownedTokens: { contractAddress: string, tokenId: string, standard: string }[]) {
-  const nftMetas = await Promise.all(
-    ownedTokens.map(async ({ contractAddress, tokenId, standard }, index) => {
-      await delay(index * 175);
-      const tokenMetadata = await getTokenMetadata(contractAddress, tokenId, standard);
-      return tokenMetadata;
-    })
-  );
-  // nullを除外する
-  const filteredMetas: ListNft[] = nftMetas.filter((meta): meta is ListNft => meta !== null);
-  return filteredMetas;
+// --------------------------------------------------------------
+export async function fetchNFTMetas(ownedTokens: { contractAddress: string, tokenId: string, standard: string, transactionHash: string }[]) {
+  let nftMetas: any = [];
+
+  const batchResults = await Promise.all(
+    ownedTokens.map(async ({contractAddress, tokenId, standard, transactionHash}) => {
+        return await getTokenMetadata(contractAddress, tokenId, standard, transactionHash);
+      })
+    );
+  nftMetas = [...nftMetas, ...batchResults.filter(meta => meta !== null)];
+  await delay(10); // プロバイダ(infura)側
+  return nftMetas;
 }
 
+// -------------------------------------------------------------
 // getTokenMetadata: メタデータを取得する関数
-async function getTokenMetadata(contractAddress: string, tokenId: string, standard: string) {
+// -------------------------------------------------------------
+async function getTokenMetadata(contractAddress: string, tokenId: string, standard: string, transactionHash: string) {
   const contract = new ethers.Contract(contractAddress, abi, provider);
   try {
     console.log(`contractAddress:${contractAddress}`);
     console.log(`tokenId:${tokenId}`);
 
     let tokenURI;
-    // ERC721かERC1155かを判定する
-    if (standard === "ERC721") {
+    let isOpenSea = false;
+    // OpenSea or ERC721 or ERC1155 を判定する
+    if (openSeaContractAddresses.includes(contractAddress.toLowerCase())) {
+      tokenURI = openSeaAPIUrl + openSeaAPIUrlContract + contractAddress + openSeaAPIUrlNfts + tokenId;
+      isOpenSea = true;
+    } else if (standard === "ERC721") {
       tokenURI = await contract.tokenURI(tokenId);
     } else if (standard === "ERC1155") {
       tokenURI = await contract.uri(tokenId);
     }
-    console.log(`tokenURI: ${tokenURI}`);
 
     // トークンURIに{id}が含まれている場合はプレースホルダーを置換
     if (tokenURI.includes("{id}")) {
       tokenURI = tokenURI.replace("{id}", tokenId.toString().padStart(64, '0'));
     }
 
-    // メタデータを取得
-    const response = await fetch(tokenURI);
-    const metadata = await response.json();
+    console.log(`tokenURI:${isOpenSea}:${tokenURI}`);
+
+    // メタデータの所在を判定 ⇒ NFT内部 or 外部サーバー
+    let metadata;
+    let metadataStatus;
+    let metaname;
+    let metaImage;
+    if (tokenURI.startsWith('data:application/json;base64')) {
+      console.log(`base64に入りました`);
+      const base64tokenURI = tokenURI.split(',')[1];
+      const response = atob(base64tokenURI);
+      metadata = JSON.parse(response);
+        console.log(`base64_metadata: ${response}`);
+      metadataStatus = "inside";
+      metaImage = metadata.image
+    } else {
+      // メタデータを取得
+      let response: Response;
+      if (isOpenSea) {
+        //const response = await fetch(tokenURI);
+        response = await fetch(tokenURI, openSeaAPIOptions);
+        if(response.status === 404) throw new Error("error tokenURI"); // アクセス不可⇒エラー
+        metadata = await response.json();
+        if(metadata.nft.is_disabled || metadata.nft.is_nsfw || metadata.nft.is_suspicious) throw new Error("error disabled NFT"); // アクセス不可⇒エラー
+        metaImage = metadata.nft.image_url;
+        metaname = metadata.nft.name;
+      } else {
+        const tokenHttpURL = await convIPFStoHttp(tokenURI);
+        //const response = await fetch(tokenHttpURL);
+        response = await fetch(tokenHttpURL);
+        if(response.status === 404) throw new Error("error tokenURI"); // アクセス不可⇒エラー
+        metadata = await response.json();
+        metaImage = await convIPFStoHttp(metadata.image);
+        metaname = metadata.name
+      }
+      const responseImage = await fetch(metaImage);
+      metadataStatus = "outside";
+      if(responseImage.status === 404 || responseImage.status === 400) {
+        throw new Error("error metaImage");
+      }
+    }
+    console.log(`metadataStatus: ${metadataStatus}`);
+    console.log(`metaName: ${metadata.name}`);
+    console.log(`metaImage: ${metadata.image}`);
 
   // 取得したメタデータをListNft型に変換して返す
   const tokenMetadata: ListNft = {
-    contractAddress,
-    tokenId,
-    metaName: metadata.name || '',
+    contractAddress: contractAddress,
+    standard: standard,
+    tokenId: tokenId,
+    tokenValue: "0",
+    tokenURI: tokenURI,
+    href: `/nft?cadr=${contractAddress}&tid=${tokenId}&std=${standard}`,
+    transactionHash: transactionHash,
+    metadataStatus: metadataStatus,
+    metaName: metaname || '',
     metaDescription: metadata.description || '',
-    metaImage: metadata.image || '',
+    metaImage: metaImage || '',
     metaAttributes: metadata.attributes ? metadata.attributes.map((attr: any) => attr.trait_type + ": " + attr.value) : []
   }
   return tokenMetadata;
@@ -103,8 +189,10 @@ async function getTokenMetadata(contractAddress: string, tokenId: string, standa
   }
 }
 
+// ------------------------------------------------------------------
 // 指定ユーザーが保有するNFTのコントラクトアドレスとトークンIDを取得する
-export async function getNFTContractsAndTokenIds() {
+// ------------------------------------------------------------------
+export async function getNFTContractsAndTokenIds(walletAddress: string) {
   // ウォレットアドレスを32バイトにゼロパディングする
   const paddedAddress = "0x" + getAddress(walletAddress).slice(2).padStart(64, '0');
   console.log(`ウォレットアドレスの0pad: ${paddedAddress}`);
@@ -149,46 +237,42 @@ export async function getNFTContractsAndTokenIds() {
 
   // 1.ERC721 : コントラクトアドレスとトークンIDを結合したデータをmapで作成
   const logs = await provider.getLogs(filter); // ログを指定ブロック範囲内で取得（上記範囲指定可）
-  let tokenOwnership = new Map(
-    logs.map(log => {
+  let tokenOwnership: [string, { to: any; standard: string; transactionHash: string }][] = await Promise.all(
+    logs.map(async (log) => {
+      // ログを取得してコントラクトアドレスとトークンIDを抽出
       const contractAddress = log.address;  // コントラクトアドレスを抽出
       const tokenId = abiCoder.decode(["uint256"], log.topics[3])[0].toString(); // トークンIDをデコード
       const key = `${contractAddress}-${tokenId}`;  // キーを結合して作成
       const to = abiCoder.decode(["address"], log.topics[2])[0];  // 転送先を取得
-      return [key, {to, standard: "ERC721"}];  // マップ用にキーと転送先アドレスを返す
+      const transactionHash = log.transactionHash; // トランザクションハッシュを取得
+      const blockNumber = log.blockNumber; // ブロック番号
+      //const transaction = await provider.getTransaction(transactionHash);
+
+      return [key, {to, standard: "ERC721", transactionHash}];  // マップ用にキーと転送先アドレスを返す
     })
   );
   console.log(`1.ERC721トークンの数: ${logs.length}`);
-  console.log(`1.ERC721トークンの数: ${tokenOwnership.size}`);
+  console.log(`1.ERC721トークンの数: ${tokenOwnership.length}`);
 
   // 2.ERC1155 : TransferSingle イベントのログ取得
   const logsSingle = await provider.getLogs(filterSingle);
-  const singleOwnership = new Map(
-    logsSingle.map(log => {
-      try {
-        const contractAddress = log.address;
-        const decodedData = abiCoder.decode(["uint256", "uint256"], log.data);
-        const tokenId = decodedData[0].toString();
-        const key = `${contractAddress}-${tokenId}`;
-        const to = abiCoder.decode(["address"], log.topics[3])[0];  // 転送先を取得
-        //console.log("log.address:", log.address);
-        //console.log("decodedData[0]:", tokenId);
-        //console.log("decodedData[1]:", decodedData[1].toString());
-        //console.log("to:", to);
-        // ウォレットアドレスに一致する場合のみ、キーと転送先アドレスを返す
-        //if (to.toLowerCase === walletAddress.toLowerCase) {
-        //  return [key, to];  // 有効なエントリ
-        //}
-        //return null;  // 不要な場合はnullを返す
-        return [key, {to, standard: "ERC1155"}];
-        
-      } catch (error) {
-        console.error("map_err_singleOwnership:", error);
-      }
-    }).filter((entry): entry is [string, { to: string, standard: string }] => entry !== null) // nullを除外し、型を狭める
+  const singleOwnership: [string, { to: any; standard: string; transactionHash: string }][] = await Promise.all(
+    logsSingle.map(async (log) => {
+      // ログを取得してコントラクトアドレスとトークンIDを抽出
+      const contractAddress = log.address;
+      const decodedData = abiCoder.decode(["uint256", "uint256"], log.data);
+      const tokenId = decodedData[0].toString();
+      const key = `${contractAddress}-${tokenId}`;
+      const to = abiCoder.decode(["address"], log.topics[3])[0];  // 転送先を取得
+      const transactionHash = log.transactionHash; // トランザクションハッシュを取得
+      const blockNumber = log.blockNumber; // ブロック番号
+      //const transaction = await provider.getTransaction(transactionHash);
+
+      return [key, {to, standard: "ERC1155", transactionHash}];  // マップ用にキーと転送先アドレスを返す
+    })
   );
   console.log(`2.ERC1155トークンの数: ${logsSingle.length}`);
-  console.log(`2.ERC1155トークンの数: ${singleOwnership.size}`);
+  console.log(`2.ERC1155トークンの数: ${singleOwnership.length}`);
 
   // 3.ERC1155 : TransferBatch イベントのログ取得 ★★2024/09/22時点で当該ログを発見できないためテストできず、発見次第実装とする★★
   {/*
@@ -218,27 +302,96 @@ export async function getNFTContractsAndTokenIds() {
   console.log(`3.ERC1155トークンの数: ${batchOwnership.size}`);
  */}
 
-  // ERC1155のSingleとBatchの結果をERC721のmapに一括で追加（スプレッド構文を使用）
-  tokenOwnership = new Map(Array.from(tokenOwnership).concat(
-    Array.from(singleOwnership),
-    //Array.from(batchOwnership)
-  ));
-
+  // nullエントリをフィルタリングして有効なエントリのみを保持
+  const filteredSingleOwnership = singleOwnership.filter(entry => entry !== null);
+  // tokenOwnershipにERC721とERC1155の結果を追加
+  let tokenOwnershipMAP = new Map(tokenOwnership);  // ここでtokenOwnershipをMapに変換
+  filteredSingleOwnership.forEach(([key, value]) => {
+    tokenOwnershipMAP.set(key, value); // ERC1155の結果を追加
+  });
+  
   // 現在のウォレットが所有するトークンだけを抽出
-  const ownedTokens = Array.from(tokenOwnership.entries())
+  const ownedTokens = Array.from(tokenOwnershipMAP.entries())
   .filter(([key, owner]) => owner.to.toLowerCase() === walletAddress.toLowerCase())
   .map(([key, ownerData]) => {
     const [contractAddress, tokenId] = key.split('-');
-    return { contractAddress, tokenId, standard: ownerData.standard };
+    return { contractAddress, tokenId, standard: ownerData.standard, transactionHash: ownerData.transactionHash };
   });
+  console.log(`ownedTokens:`,ownedTokens);
 
-  //console.log(`取得したトークンの数: ${tokenOwnership.size}`);
-  //ownedTokens.forEach(({ contractAddress, tokenId }) => {
-  //  console.log(`コントラクトアドレス: ${contractAddress}, トークンID: ${tokenId}`);
-  //});
+  return ownedTokens;
 
-  // メタデータも一緒に上で返却
-  const ownedTokensWithMetas = fetchNFTMetas(ownedTokens);
-  //console.log(`最終的なリスト: ${ownedTokensWithMetas}`);
+}
 
+// ------------------------------------------------------------------
+// 指定トランザクションのNFT取得価格を取得する
+// ------------------------------------------------------------------
+export async function getNFTTransactionValues(
+  ownedTokens: {
+    contractAddress: string;
+    tokenId: string;
+    standard: string;
+    transactionHash: string;
+  }[]) {
+  // ownedTokensに基づいてトランザクションデータを取得
+  const transactionValues = await Promise.all(
+    ownedTokens.map(async (token) => {
+      const {transactionHash} = token;
+
+      try {
+        const transaction = await provider.getTransaction(transactionHash);
+        // トランザクションが無い場合は処理終了
+        if (!transaction) return { ...token, value: "0" }; 
+        return {
+          ...token,
+          value: transaction ? ethers.formatEther(transaction.value) : "0", // 取得価格（Ether）
+        };
+
+      } catch (error) {
+        console.error(`トランザクション取得エラー: ${transactionHash}`, error);
+        return { ...token, value: "0" }; // エラーが発生した場合はvalueをnullに設定
+      }
+    })
+  );
+  return transactionValues;
+}
+
+// ------------------------------------------------------------------
+// 指定トランザクションのNFT取得日時を取得する
+// ------------------------------------------------------------------
+export async function getNFTTransactionsDatetime(
+  ownedTokens: {
+    contractAddress: string;
+    tokenId: string;
+    standard: string;
+    transactionHash: string;
+    value: string;
+  }[]) {
+  const errDate = new Date('01 January 1900 01:01 UTC');
+
+  // ownedTokensに基づいてトランザクションデータを取得
+  const transactionsDatetime = await Promise.all(
+    ownedTokens.map(async (token) => {
+      const {transactionHash} = token;
+
+      try {
+        const receipt = await provider.getTransactionReceipt(transactionHash);
+
+        // トランザクション or トランザクションレシート or レシートのブロック、無い場合は処理終了
+        if (!receipt || !receipt.blockNumber) return { ...token, dateTime: errDate }; 
+
+        const block = await provider.getBlock(receipt.blockNumber);
+        const dateTime = block ? new Date(block.timestamp * 1000) : errDate; // タイムスタンプをDateオブジェクトに変換  
+        return {
+          ...token,
+          dateTime: dateTime.toISOString(), // 実行日時（ISOフォーマットで返す）
+        };
+
+      } catch (error) {
+        console.error(`トランザクション取得エラー: ${transactionHash}`, error);
+        return { ...token, dateTime: errDate }; // エラーが発生した場合はvalueをnullに設定
+      }
+    })
+  );
+  return transactionsDatetime;
 }

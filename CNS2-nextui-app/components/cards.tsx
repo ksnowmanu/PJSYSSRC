@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react';
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/card";
+import { Pagination, PaginationItem, PaginationCursor } from "@nextui-org/pagination";
 import { Image } from "@nextui-org/image";
 import { Button } from "@nextui-org/button";
 import { Link } from "@nextui-org/link";
@@ -12,6 +14,7 @@ import {
   ShopIcon,
 } from "@/components/icons";
 import { ListItem } from '@/pages/api/users'; // ListItem 型の定義をインポート
+import { ListNft } from '@/pages/api/ethers'; // ListNft 型の定義をインポート
 
 export const Contract1Cord = () => {
   return(
@@ -250,6 +253,61 @@ export const PersonCords = ({ list }: { list: ListItem[] }) => {
             </CardFooter>
           </Card>
         
+      ))}
+    </div>
+  )
+};
+
+// test
+export const PageNftCords = ({ list }: { list: ListNft[] }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 100;
+
+  const totalItems = list.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  // ページごとのNFTリストを取得
+  const currentNFTs = list.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  return (
+    <>
+      <NftCords list={currentNFTs} />
+      <Pagination
+        total={totalPages}   // トータルページ数を指定
+        initialPage={1}
+        page={currentPage}
+        onChange={(page) => setCurrentPage(page)}
+      />
+    </>
+  );
+};
+
+export const NftCords = ({ list }: { list: ListNft[] }) => {
+  return(
+    <div className="gap-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+      {list.map((item, index) => (
+        <Card className="w-full" shadow="sm" key={index} isPressable onPress={() => console.log("item pressed")}>
+          <Link href={item.href}>
+            <CardBody className="flex flex-rows overflow-visible text-center text-default-500 text-xs lg:text-sm p-0">
+              <Image
+                isZoomed
+                shadow="sm"
+                radius="lg"
+                width="100%"
+                alt={item.metaName}
+                className="w-full object-cover"
+                src={item.metaImage}
+              />
+              <b>{item.metaName}</b>
+            </CardBody>  
+          </Link>
+            <CardFooter className="text-xs justify-center">
+              <b>取得価格:{item.tokenValue}</b>
+            </CardFooter>
+          </Card>
       ))}
     </div>
   )
