@@ -15,6 +15,8 @@ import {
 } from "@/components/icons";
 import { ListItem } from '@/pages/api/users'; // ListItem 型の定義をインポート
 import { ListNft } from '@/pages/api/ethers'; // ListNft 型の定義をインポート
+import { useNft } from '@/context/nft'; // nft情報を保存してシステム全体で利用するためのcontextを利用する
+import NftModal from "./modal"; // モーダルをインポート
 
 export const Contract1Cord = () => {
   return(
@@ -286,11 +288,19 @@ export const PageNftCords = ({ list }: { list: ListNft[] }) => {
 };
 
 export const NftCords = ({ list }: { list: ListNft[] }) => {
+  const { setNftData } = useNft();
+  const [visible, setVisible] = useState(false);
+  const openModal = (item: ListNft) => {
+    setNftData(item); // コンテキストにNFTデータを保存
+    setVisible(true); // モーダルを表示
+  };
+  const closeModal = () => setVisible(false);
+
   return(
     <div className="gap-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
       {list.map((item, index) => (
-        <Card className="w-full" shadow="sm" key={index} isPressable onPress={() => console.log("item pressed")}>
-          <Link href={item.href}>
+        <Card className="w-full" shadow="sm" key={index} isPressable onPress={() => openModal(item)}> {/*クリック時にNFT詳細画面を起動*/}
+          {/*<Link href={item.href}>*/}
             <CardBody className="flex flex-rows overflow-visible text-center text-default-500 text-xs lg:text-sm p-0">
               <Image
                 isZoomed
@@ -298,17 +308,29 @@ export const NftCords = ({ list }: { list: ListNft[] }) => {
                 radius="lg"
                 width="100%"
                 alt={item.metaName}
-                className="w-full object-cover"
-                src={item.metaImage}
+                className="w-full h-full object-cover"
+                src={item.metaImage64}
+                //src={URL.createObjectURL(item.metaImage64)}
               />
               <b>{item.metaName}</b>
             </CardBody>  
-          </Link>
+          {/*</Link>*/}
             <CardFooter className="text-xs justify-center">
               <b>取得価格:{item.tokenValue}</b>
             </CardFooter>
           </Card>
       ))}
+            {/* モーダルコンポーネントを表示 */}
+            <NftModal visible={visible} closeModal={closeModal} />
     </div>
   )
 };
+
+{/*
+// imageデータ取得
+const getImage = (itemMetaImage: any) => {
+  if (itemMetaImage.startsWith('http') || itemMetaImage.startsWith('ipfs')) {
+    return `/api/image?url=${encodeURIComponent(itemMetaImage)}`;
+  } else return itemMetaImage;
+};
+ */}

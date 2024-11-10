@@ -5,7 +5,7 @@ import { Avatar } from "@nextui-org/avatar"
 import { Link } from "@nextui-org/react";
 import DefaultLayout from "@/layouts/default";
 import { title } from "@/components/primitives";
-import { WalletProvider, useWallet } from "@/components/user";
+import { WalletProvider, useWallet } from "@/context/user";
 import { PersonCords } from "@/components/cards"
 import { ListItem } from '../api/users'; // ListItem 型の定義をインポート
 import {
@@ -57,7 +57,6 @@ export default function PersonalPage() {
   }, [router.query]); // 依存リストを空にすると最初のレンダリング時にのみ実行される
 
   return (
-    <WalletProvider>
     <DefaultLayout>
 
       {/* ★コントラクト選択 */}
@@ -99,6 +98,5 @@ export default function PersonalPage() {
         <PersonCords list={listItems} />
       </section>
     </DefaultLayout>
-    </WalletProvider>
   );
 }

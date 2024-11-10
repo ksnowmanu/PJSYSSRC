@@ -5,10 +5,11 @@ import { Avatar } from "@nextui-org/avatar"
 import { Link } from "@nextui-org/react";
 import DefaultLayout from "@/layouts/default";
 import { title } from "@/components/primitives";
-import { WalletProvider, useWallet } from "@/components/user";
+import { WalletProvider, useWallet } from "@/context/user";
 import { NftCords, PageNftCords } from "@/components/cards";
 import { ListItem } from '../api/users'; // ListItem 型の定義をインポート
-import { ListNft, getNFTContractsAndTokenIds, getNFTTransactionValues, getNFTTransactionsDatetime, fetchNFTMetas } from '../api/ethers';
+import { ListNft, bcLog, getLatestOwnedNFT, getReleasedOwnedNFT, getNFTTransferLogs, fetchNFTMetas } from '../api/ethers';
+//import { useNft } from '@/context/nft'; // nft情報を保存してシステム全体で利用するためのcontextを利用する
 import {
   TwitterXIcon,
   InstagramIcon,
@@ -23,8 +24,13 @@ export default function PersonalPage() {
 
   {/* ethereum接続用 */}
   //const [windowEthereum, setWindowEthereum] = useState();
-  const [ownNFTs, setOwnNFTs] = useState<{ contractAddress: string; tokenId: string; standard: string; transactionHash: string }[]>([]);
-  const [listNFTs, setListNFTs] = useState<ListNft[]>([]);
+  const [pageLoad, setPageLoad] = useState(false);                           // ページロード時の実行フラグ1
+  const [pageLoad2, setPageLoad2] = useState(false);                         // ページロード時の実行フラグ2
+  const [ownNFTsLog, setOwnNFTsLog] = useState<bcLog[]>([]);                 // NFT取得の全ログ
+  const [releasedOwnNFTsLog, setReleasedOwnNFTsLog] = useState<bcLog[]>([]); // NFT放出の全ログ
+  const [listOwnNFTs, setListOwnNFTs] = useState<ListNft[]>([]);             // NFT取得の全ログ＋メータデータ
+  const [viewListNFTs, setViewListNFTs] = useState<ListNft[]>([]);           // 画面表示用のNFTリスト
+  //const { setNftData } = useNft();
   
   {/* URLクエリパラメータを取得 */}
   const router = useRouter();
@@ -91,60 +97,92 @@ export default function PersonalPage() {
     }
   };
 
-  // ページ読み込み時にユーザー情報を取得する
+  // 手放したNFTリスト作成
+  const releasedOwnedNFT = async (listNFTs: ListNft[], ownNFTs: bcLog[]) => {
+    return getReleasedOwnedNFT(listNFTs, ownNFTs);
+  }
+
+  // 現在所有するNFTリスト作成
+  const latestOwnedNFT = async (listNFTs: ListNft[], ownNFTs: bcLog[]) => {
+    return getLatestOwnedNFT(listNFTs, ownNFTs);
+  }
+  
+  // ページ読み込み時にユーザー情報を取得
   useEffect(() => {
     const fetchData = async () => {
       if (typeof id === 'string') {
         // VercelPostgres接続⇒ユーザーの登録情報取得
-        fetchUsers(`${id}`).then(() => {
-          // ページユーザーのEthereumログから所有nftリストを取得
-          // メタ情報取得はコントラクト操作とipfs接続(meta.json読込み)が必要であり時間がかかるため、別useEffectで逐次処理
-          getNFTContractsAndTokenIds(`${id}`).then((ownedTokens) => {
-            //getNFTTransactions(ownedTokens).then((nfts) => {
-            //  // dateTimeで降順にソート
-            //  const sortedNFTs = nfts.sort((a, b) => {
-            //    const dateA = a.dateTime ? new Date(a.dateTime).getTime() : new Date('1900-01-01').getTime();
-            //    const dateB = b.dateTime ? new Date(b.dateTime).getTime() : new Date('1900-01-01').getTime();
-            //    return dateB - dateA; // 降順ソート
-            //  });
-              console.log('setOwnNFTs called with:', ownedTokens);
-              setOwnNFTs(ownedTokens);
-            });
-          });
-        };
-      };
+        fetchUsers(`${id}`).then(async () => {
+          // ページユーザーのEthereumログから所有履歴のある全nftリストを取得
+          const ownedTokens = await getNFTTransferLogs(`${id}`,"0");
+          console.log('★setOwnNFTs called with:', ownedTokens);
 
-  fetchData();
+          // ページユーザーのEthereumログから放出履歴のある全nftリストを取得
+          const releasedOwnedTokens = await getNFTTransferLogs(`${id}`, "1");
+          console.log('★setOwnNFTsOut called with:', releasedOwnedTokens);
+
+          setReleasedOwnNFTsLog(releasedOwnedTokens);
+          setOwnNFTsLog(ownedTokens);
+        });
+      };
+    };
+
+    if (!pageLoad) {
+      fetchData();
+    }
 
   }, [id]); // 依存リストを空にすると最初のレンダリング時にのみ実行される
 
-  // メタ情報を取得
+  // メタ情報を取得　※コントラクト操作とipfs接続(meta.json読込み)は一括取得不可、バッチ処理のため時間がかかる
   useEffect(() => {
-    console.log('length:', ownNFTs.length);
     const fetchData = async () => {
-      if (!ownNFTs || ownNFTs.length === 0) return;  // ownNFTsが存在する場合のみ実行
+      if (!ownNFTsLog || ownNFTsLog.length === 0) return;  // ownNFTsが存在する場合のみ実行
 
-      //await new Promise((resolve) => setTimeout(resolve, 1000)); // 1秒遅延
-      const batchSize = 5; // バッチサイズを設定
-      for (let i = 0; i < ownNFTs.length; i += batchSize) {
-        const batch = ownNFTs.slice(i, i + batchSize).map(({ contractAddress, tokenId, standard, transactionHash }) => ({
-          contractAddress,
-          tokenId,
-          standard,
-          transactionHash,
-        }));
+      const storedNFTsLog = sessionStorage.getItem('ownNFTsLog');
+      if (storedNFTsLog && JSON.stringify(ownNFTsLog) === storedNFTsLog) {
+        const storedViewListNFTs = sessionStorage.getItem('viewListNFTs');
+        const parsedViewListNFTs: ListNft[] = storedViewListNFTs ? JSON.parse(storedViewListNFTs) : null;
+        setViewListNFTs(parsedViewListNFTs);
+        console.log('セッションストレージを使います',parsedViewListNFTs);
+         return;  // ownNFTsのログに変更がある場合のみ実行
+      }
+
+      console.log('再検索します');
+      const batchSize = 6; // バッチサイズを設定
+      const metadataList: ListNft[] = []; // 取得したメタデータを格納する配列
+      for (let i = 0; i < ownNFTsLog.length; i += batchSize) {
+        const batch = ownNFTsLog.slice(i, i + batchSize);
         try {
           const metadata = await fetchNFTMetas(batch); // バッチごとにメタ情報を取得
-          setListNFTs((prevData) => [...prevData, ...metadata]); // 取得したメタデータを即座に追加
+          setViewListNFTs((prevData) => [...prevData, ...metadata]); // 取得したメタデータを即座に追加
+          metadataList.push(...metadata); // セッションストレージ用に確実に設定されたデータを用意（useStateは反映にタイムラグがある）
         } catch (error) {
           console.error('Error fetching NFT metadata:', error);
         }
-        await new Promise((resolve) => setTimeout(resolve, 250)); // プロバイダ(infura)側のリクエスト制限に対応
+        await new Promise((resolve) => setTimeout(resolve, 200)); // プロバイダ(infura)側のリクエスト制限に対応
       }
+      // 今後利用予定のため、現状は意味なし
+      setListOwnNFTs(viewListNFTs);
+      // セッションストレージにログ情報を保存
+      sessionStorage.setItem('ownNFTsLog', JSON.stringify(ownNFTsLog));
+      sessionStorage.setItem('viewListNFTs', JSON.stringify(metadataList)); // 一度に保存
+      console.log("metadataList確認:",metadataList)
     }
 
-    fetchData();
-  }, [ownNFTs]);
+    console.log('セッションストレージ確認1:',sessionStorage.getItem('ownNFTsLog'));
+    console.log('セッションストレージ確認2:',sessionStorage.getItem('viewListNFTs'));
+    if (!pageLoad2) fetchData();
+  
+  }, [ownNFTsLog]);
+
+  {/*
+  // セッションストレージにログ情報を保存
+  useEffect(() => {
+    sessionStorage.setItem('viewListNFTs', JSON.stringify(viewListNFTs));
+console.log("useEffect1:",viewListNFTs);
+console.log("useEffect2:",sessionStorage.getItem('viewListNFTs'));
+
+  }, [viewListNFTs]); */}
 
   return (
     <WalletProvider>
@@ -218,12 +256,32 @@ export default function PersonalPage() {
 
         </div>
 
-        <Button onPress={() => fetchUsers(`${id}`)}>
-          取得id
+        <Button
+          onPress={async () => {
+            try {
+              // 非同期関数をawaitで実行して結果を取得
+              const releasedNFTs = await releasedOwnedNFT(listOwnNFTs, releasedOwnNFTsLog);
+              setViewListNFTs(releasedNFTs); // 結果をstateに設定
+            } catch (error) {
+              console.error('Error fetching released NFTs:', error);
+            }
+          }}
+        >
+          リリースNFT表示
         </Button>
         
-        <Button>
-          取得log
+        <Button
+          onPress={async () => {
+            try {
+              // 非同期関数をawaitで実行して結果を取得
+              const latestOwnedNFTs = await latestOwnedNFT(listOwnNFTs, releasedOwnNFTsLog);
+              setViewListNFTs(latestOwnedNFTs); // 結果をstateに設定
+            } catch (error) {
+              console.error('Error fetching released NFTs:', error);
+            }
+          }}
+        >
+          現在所有NFT表示
         </Button>
 
         <Button onPress={() => updateUsers("0","0x45f630756a33b36A2c09873766C3cC50C1B7C161","ミスターK","no_icon.png","test_banner.png")}>
@@ -234,7 +292,7 @@ export default function PersonalPage() {
           削除
         </Button>
 
-        <PageNftCords list={listNFTs} />
+        <PageNftCords list={viewListNFTs} />
 
       </section>
     </DefaultLayout>

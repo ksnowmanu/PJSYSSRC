@@ -3,7 +3,8 @@ import type { AppProps } from "next/app";
 import { NextUIProvider } from "@nextui-org/system";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { useRouter } from "next/router";
-import { WalletProvider, useWallet } from "@/components/user";
+import { WalletProvider } from "@/context/user";
+import { NftProvider } from "../context/nft"; // NftProviderをインポート
 
 import { fontSans, fontMono } from "@/config/fonts";
 import "@/styles/globals.css";
@@ -15,7 +16,9 @@ export default function App({ Component, pageProps }: AppProps) {
     <WalletProvider>
     <NextUIProvider navigate={router.push}>
       <NextThemesProvider>
-        <Component {...pageProps} />
+        <NftProvider>
+          <Component {...pageProps} />
+        </NftProvider>
       </NextThemesProvider>
     </NextUIProvider>
     </WalletProvider>
