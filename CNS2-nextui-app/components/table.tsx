@@ -12,6 +12,12 @@ import {
     VerticalDotsIcon,
   } from "@/components/icons";
 
+import { 
+  ListNft,
+  bcLog, 
+  bcLogErc20,
+} from '@/pages/api/ethers';
+
 const statusColorMap: Record<string, ChipProps["color"]>  = {
   active: "success",
   paused: "danger",
@@ -131,3 +137,36 @@ export const Tables = () => {
     </Table>
   );
 }
+
+// XXXXXXXX
+interface BcLogTableProps {
+  logs: bcLogErc20[];
+}
+export const BcLogTable: React.FC<BcLogTableProps> = ({ logs }) => {
+  return (
+    <Table aria-label="BC Log Table">
+      <TableHeader>
+        <TableColumn>Block Number</TableColumn>
+        <TableColumn>Token IO</TableColumn>
+        <TableColumn>FromAddress</TableColumn>
+        <TableColumn>ToAddress</TableColumn>
+        <TableColumn>Value</TableColumn>
+        <TableColumn>Symbol</TableColumn>
+        <TableColumn>TransactionHash</TableColumn>
+      </TableHeader>
+      <TableBody items={logs}>
+        {(log) => (
+          <TableRow key={log.key}>
+            <TableCell>{log.blockNumber}</TableCell>
+            <TableCell>{log.tokenIO}</TableCell>
+            <TableCell>{log.fromAddress.slice(0,6)}...{log.fromAddress.slice(-4)}</TableCell>
+            <TableCell>{log.toAddress.slice(0,6)}...{log.toAddress.slice(-4)}</TableCell>
+            <TableCell>{log.data}</TableCell>
+            <TableCell>{log.tokenSymbol.length > 20 ? log.tokenSymbol.slice(0,20)+'...': log.tokenSymbol}</TableCell>
+            <TableCell>{log.transactionHash.slice(0,6)}...{log.transactionHash.slice(-4)}</TableCell>
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
+  );
+};

@@ -2,13 +2,24 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Button } from "@nextui-org/button";
 import { Avatar } from "@nextui-org/avatar"
-import { Link } from "@nextui-org/react";
+import { Link, Chip } from "@nextui-org/react";
+import {Spinner} from "@nextui-org/spinner";
 import DefaultLayout from "@/layouts/default";
 import { title } from "@/components/primitives";
 import { WalletProvider, useWallet } from "@/context/user";
 import { NftCords, PageNftCords } from "@/components/cards";
+import { BcLogTable } from "@/components/table"
+import { Tabs, Tab } from "@nextui-org/tabs";
 import { ListItem } from '../api/users'; // ListItem 型の定義をインポート
-import { ListNft, bcLog, getLatestOwnedNFT, getReleasedOwnedNFT, getNFTTransferLogs, fetchNFTMetas } from '../api/ethers';
+import { 
+  ListNft,
+  bcLog, 
+  bcLogErc20,
+  getAllTransferLogs,
+  getTransferLogs1155,
+  addCurrencyInfoToErc20TokenLogs,
+  fetchNFTMetas 
+} from '../api/ethers';
 //import { useNft } from '@/context/nft'; // nft情報を保存してシステム全体で利用するためのcontextを利用する
 import {
   TwitterXIcon,
@@ -18,6 +29,10 @@ import {
   FacebookIcon,
   BlogIcon,
   ShopIcon,
+  HandCoinIcon,
+  AddShoppingCart,
+  RemoveShoppingCart,
+  CheckbookOutline,
 } from "@/components/icons";
 
 export default function PersonalPage() {
@@ -28,9 +43,14 @@ export default function PersonalPage() {
   const [pageLoad2, setPageLoad2] = useState(false);                         // ページロード時の実行フラグ2
   const [ownNFTsLog, setOwnNFTsLog] = useState<bcLog[]>([]);                 // NFT取得の全ログ
   const [releasedOwnNFTsLog, setReleasedOwnNFTsLog] = useState<bcLog[]>([]); // NFT放出の全ログ
-  const [listOwnNFTs, setListOwnNFTs] = useState<ListNft[]>([]);             // NFT取得の全ログ＋メータデータ
-  const [viewListNFTs, setViewListNFTs] = useState<ListNft[]>([]);           // 画面表示用のNFTリスト
+  const [currentOwnNFTsLog, setCurrentOwnNFTsLog] = useState<bcLog[]>([]);   // NFT保有の全ログ　※現在保有
+  const [transactionDetailsLog, setTransactionDetailsLog] = useState<bcLogErc20[]>([]);   // ETH取引の全ログ
+  //const [listOwnNFTs, setListOwnNFTs] = useState<ListNft[]>([]);             // NFT取得の全ログ＋メータデータ
+  const [viewListNFTs, setViewListNFTs] = useState<ListNft[]>([]);             // 画面表示用のNFTリスト
+  const [releasedViewListNFTs, setReleasedViewListNFTs] = useState<ListNft[]>([]);           // 画面表示用のNFTリスト
   //const { setNftData } = useNft();
+  const [isLoadingA, setIsLoadingA] = useState(true);
+  const [isLoadingB, setIsLoadingB] = useState(true);
   
   {/* URLクエリパラメータを取得 */}
   const router = useRouter();
@@ -97,15 +117,38 @@ export default function PersonalPage() {
     }
   };
 
-  // 手放したNFTリスト作成
-  const releasedOwnedNFT = async (listNFTs: ListNft[], ownNFTs: bcLog[]) => {
-    return getReleasedOwnedNFT(listNFTs, ownNFTs);
-  }
+  // Alasql [npm install alasql]
+  // ------------------------------------------------------------
+  // NFTLogs(a)にETHLogs(b)を結合しNFT転送とETH転送を紐づけたリストを作成
+  // NFT転送とETH転送は同一トランザクションで実行されるルールより、トランザクションをキーに結合する
+  // ------------------------------------------------------------
+  const queryNftJoinEthLogs = `
+  SELECT 
+    a.key,
+    a.contractAddress,
+    a.standard,
+    a.tokenId,
+    a.fromAddress,
+    a.toAddress,
+    CASE WHEN b.data IS NOT NULL THEN b.data ELSE a.data END AS data,
+    a.transactionHash,
+    a.blockNumber
+  FROM ? AS a LEFT JOIN ? AS b ON a.transactionHash = b.transactionHash 
+  `;
 
-  // 現在所有するNFTリスト作成
-  const latestOwnedNFT = async (listNFTs: ListNft[], ownNFTs: bcLog[]) => {
-    return getLatestOwnedNFT(listNFTs, ownNFTs);
-  }
+  // ------------------------------------------------------------
+  // 取得履歴(a)からリリース履歴(b)を除外したログリストを作成
+  // ab双方に同一NFTが存在した場合にaブロック番号とbブロック番号を比較
+  // aブロック番号が大きい：保有中　　※リリース後に再取得を意味する
+  // bブロック番号が大きい：リリース
+  // ------------------------------------------------------------
+  const queryGetCurrentOwnedTokens = `
+  SELECT a.*
+  FROM ? AS a LEFT JOIN ? AS b ON a.key = b.key 
+  WHERE b.key IS NULL
+  OR (b.key IS NOT NULL 
+    AND a.blockNumber > b.blockNumber)
+  `;
   
   // ページ読み込み時にユーザー情報を取得
   useEffect(() => {
@@ -113,15 +156,55 @@ export default function PersonalPage() {
       if (typeof id === 'string') {
         // VercelPostgres接続⇒ユーザーの登録情報取得
         fetchUsers(`${id}`).then(async () => {
-          // ページユーザーのEthereumログから所有履歴のある全nftリストを取得
-          const ownedTokens = await getNFTTransferLogs(`${id}`,"0");
-          console.log('★setOwnNFTs called with:', ownedTokens);
+          // alasqlエンジン用意
+          const alasql = require('alasql');
 
-          // ページユーザーのEthereumログから放出履歴のある全nftリストを取得
-          const releasedOwnedTokens = await getNFTTransferLogs(`${id}`, "1");
-          console.log('★setOwnNFTsOut called with:', releasedOwnedTokens);
+          // 全転送ログ取得　※全件取得してから目的別に分離する
+          const allTransferLogs = await getAllTransferLogs(`${id}`);   // ERC721 and ERC20　※同一Transferイベント
+          const transferLogs1155 = await getTransferLogs1155(`${id}`); // ERC1155
 
+          // 1.NFT取得ログ生成
+          // ERC721 and ERC1155 IN 
+          const ERC721InTransferLogs = allTransferLogs.filter((log) => log.standard === 'ERC721' && log.tokenIO === "IN");
+          const ERC1155InTransferLogs = transferLogs1155.filter((log) => log.standard === 'ERC1155' && log.tokenIO === "IN");
+          const combinedInTransferLogs = ERC721InTransferLogs.concat(ERC1155InTransferLogs);
+          // ERC20 OUT
+          const ERC20OutTransferLogs = allTransferLogs.filter((log) => log.standard === 'ERC20' && log.tokenIO === "OUT");
+          // ERC721 and ERC1155 IN + ERC20 OUT
+          const ownedTokens = await alasql(queryNftJoinEthLogs, [combinedInTransferLogs, ERC20OutTransferLogs]);
+
+          // 2.NFTリリースログ生成
+          // ERC721 and ERC1155 OUT
+          const ERC721OutTransferLogs = allTransferLogs.filter((log) => log.standard === 'ERC721' && log.tokenIO === "OUT");
+          const ERC1155OutTransferLogs = transferLogs1155.filter((log) => log.standard === 'ERC1155' && log.tokenIO === "OUT");
+          const combinedOutTransferLogs = ERC721OutTransferLogs.concat(ERC1155OutTransferLogs);
+          // ERC20 IN
+          const ERC20InTransferLogs = allTransferLogs.filter((log) => log.standard === 'ERC20' && log.tokenIO === "IN");
+          // ERC721 and ERC1155 OUT + ERC20 IN
+          const releasedOwnedTokens = await alasql(queryNftJoinEthLogs, [combinedOutTransferLogs, ERC20InTransferLogs]);
+
+          // 3.現在保有nftリスト生成
+          const currentOwnedTokensEth = await alasql(queryGetCurrentOwnedTokens, [ownedTokens, releasedOwnedTokens]);
+
+          // 4.全入出金リスト生成
+          const ERC20AllTransferLogs = allTransferLogs.filter((log) => log.standard === 'ERC20').sort((a, b) => a.blockNumber - b.blockNumber);
+          const ERC20AllTransferLogsAddInfo = await addCurrencyInfoToErc20TokenLogs(ERC20AllTransferLogs);
+
+          console.log('ERC721 IN:', ERC721InTransferLogs.length);
+          console.log('ERC1155 IN:', ERC1155InTransferLogs.length);
+          console.log('ERC20 OUT:', ERC20OutTransferLogs.length);
+          console.log('ERC721 OUT:', ERC721OutTransferLogs.length);
+          console.log('ERC1155 OUT:', ERC1155OutTransferLogs.length);
+          console.log('ERC20 IN:', ERC20InTransferLogs.length);
+
+          console.log('★OwnedNFTs:', ownedTokens);
+          console.log('★releasedNFTs:', releasedOwnedTokens);
+          console.log('★currentOwnedTokens:', currentOwnedTokensEth);
+
+          // useStateで情報保存
+          setCurrentOwnNFTsLog(currentOwnedTokensEth);
           setReleasedOwnNFTsLog(releasedOwnedTokens);
+          setTransactionDetailsLog(ERC20AllTransferLogsAddInfo);
           setOwnNFTsLog(ownedTokens);
         });
       };
@@ -137,7 +220,7 @@ export default function PersonalPage() {
   useEffect(() => {
     const fetchData = async () => {
       if (!ownNFTsLog || ownNFTsLog.length === 0) return;  // ownNFTsが存在する場合のみ実行
-
+{/*
       const storedNFTsLog = sessionStorage.getItem('ownNFTsLog');
       if (storedNFTsLog && JSON.stringify(ownNFTsLog) === storedNFTsLog) {
         const storedViewListNFTs = sessionStorage.getItem('viewListNFTs');
@@ -146,43 +229,45 @@ export default function PersonalPage() {
         console.log('セッションストレージを使います',parsedViewListNFTs);
          return;  // ownNFTsのログに変更がある場合のみ実行
       }
-
-      console.log('再検索します');
+ */}
       const batchSize = 6; // バッチサイズを設定
-      const metadataList: ListNft[] = []; // 取得したメタデータを格納する配列
-      for (let i = 0; i < ownNFTsLog.length; i += batchSize) {
-        const batch = ownNFTsLog.slice(i, i + batchSize);
+
+      // 現在保有NFTのメタデータ取得⇒画面表示データ作成
+      const currentMetadataList: ListNft[] = []; // 取得したメタデータを格納する配列
+      for (let i = 0; i < currentOwnNFTsLog.length; i += batchSize) {
+        const batch = currentOwnNFTsLog.slice(i, i + batchSize);
         try {
           const metadata = await fetchNFTMetas(batch); // バッチごとにメタ情報を取得
           setViewListNFTs((prevData) => [...prevData, ...metadata]); // 取得したメタデータを即座に追加
-          metadataList.push(...metadata); // セッションストレージ用に確実に設定されたデータを用意（useStateは反映にタイムラグがある）
+          currentMetadataList.push(...metadata); // セッションストレージ用に確実に設定されたデータを用意（useStateは反映にタイムラグがある）
         } catch (error) {
           console.error('Error fetching NFT metadata:', error);
+          setIsLoadingA(false);
         }
         await new Promise((resolve) => setTimeout(resolve, 200)); // プロバイダ(infura)側のリクエスト制限に対応
       }
-      // 今後利用予定のため、現状は意味なし
-      setListOwnNFTs(viewListNFTs);
-      // セッションストレージにログ情報を保存
-      sessionStorage.setItem('ownNFTsLog', JSON.stringify(ownNFTsLog));
-      sessionStorage.setItem('viewListNFTs', JSON.stringify(metadataList)); // 一度に保存
-      console.log("metadataList確認:",metadataList)
+      setIsLoadingA(false); // 取得したデータの件数をセット
+
+      // リリースNFTのメタデータ取得⇒画面表示データ作成
+      const releasedMetadataList: ListNft[] = []; // 取得したメタデータを格納する配列
+      for (let i = 0; i < releasedOwnNFTsLog.length; i += batchSize) {
+        const batch = releasedOwnNFTsLog.slice(i, i + batchSize);
+        try {
+          const metadata = await fetchNFTMetas(batch); // バッチごとにメタ情報を取得
+          setReleasedViewListNFTs((prevData) => [...prevData, ...metadata]); // 取得したメタデータを即座に追加
+          releasedMetadataList.push(...metadata); // セッションストレージ用に確実に設定されたデータを用意（useStateは反映にタイムラグがある）
+        } catch (error) {
+          console.error('Error fetching NFT metadata:', error);
+          setIsLoadingB(false);
+        }
+        await new Promise((resolve) => setTimeout(resolve, 200)); // プロバイダ(infura)側のリクエスト制限に対応
+      }
+      setIsLoadingB(false); // 取得したデータの件数をセット
     }
 
-    console.log('セッションストレージ確認1:',sessionStorage.getItem('ownNFTsLog'));
-    console.log('セッションストレージ確認2:',sessionStorage.getItem('viewListNFTs'));
     if (!pageLoad2) fetchData();
   
   }, [ownNFTsLog]);
-
-  {/*
-  // セッションストレージにログ情報を保存
-  useEffect(() => {
-    sessionStorage.setItem('viewListNFTs', JSON.stringify(viewListNFTs));
-console.log("useEffect1:",viewListNFTs);
-console.log("useEffect2:",sessionStorage.getItem('viewListNFTs'));
-
-  }, [viewListNFTs]); */}
 
   return (
     <WalletProvider>
@@ -256,34 +341,6 @@ console.log("useEffect2:",sessionStorage.getItem('viewListNFTs'));
 
         </div>
 
-        <Button
-          onPress={async () => {
-            try {
-              // 非同期関数をawaitで実行して結果を取得
-              const releasedNFTs = await releasedOwnedNFT(listOwnNFTs, releasedOwnNFTsLog);
-              setViewListNFTs(releasedNFTs); // 結果をstateに設定
-            } catch (error) {
-              console.error('Error fetching released NFTs:', error);
-            }
-          }}
-        >
-          リリースNFT表示
-        </Button>
-        
-        <Button
-          onPress={async () => {
-            try {
-              // 非同期関数をawaitで実行して結果を取得
-              const latestOwnedNFTs = await latestOwnedNFT(listOwnNFTs, releasedOwnNFTsLog);
-              setViewListNFTs(latestOwnedNFTs); // 結果をstateに設定
-            } catch (error) {
-              console.error('Error fetching released NFTs:', error);
-            }
-          }}
-        >
-          現在所有NFT表示
-        </Button>
-
         <Button onPress={() => updateUsers("0","0x45f630756a33b36A2c09873766C3cC50C1B7C161","ミスターK","no_icon.png","test_banner.png")}>
           登録
         </Button>
@@ -292,8 +349,82 @@ console.log("useEffect2:",sessionStorage.getItem('viewListNFTs'));
           削除
         </Button>
 
-        <PageNftCords list={viewListNFTs} />
+        {/* タブ切替：保有資産、取得履歴、リリース履歴 */}
+        <div className="flex w-full flex-col">
+          <Tabs 
+            aria-label="Options" 
+            color="primary" 
+            variant="underlined"
+            classNames={{
+              tabList: "gap-6 w-full relative rounded-none p-0 border-b border-divider",
+              cursor: "w-full bg-[#22d3ee]",
+              tab: "max-w-fit px-0 h-12",
+              tabContent: "group-data-[selected=true]:text-[#06b6d4]"
+            }}
+          >
+            <Tab
+              key="currentOwnNFTsLog"
+              title={
+                <div className="flex items-center space-x-2">
+                  <HandCoinIcon/>
+                  <span>保有資産</span>
+                  <Chip size="sm" variant="faded">
+                    {isLoadingA ? (<Spinner size="sm" color="primary"/>) : (viewListNFTs.length)}
+                  </Chip>
+                </div>
+              }
+              >
+              {/* カード表示 */}
+              <PageNftCords list={viewListNFTs} />
+            </Tab>
+{/*
+            <Tab
+              key="ownNFTsLog"
+              title={
+                <div className="flex items-center space-x-2">
+                  <AddShoppingCart/>
+                  <span>取得履歴</span>
+                  <Chip size="sm" variant="faded">{viewListNFTs.length}</Chip>
+                </div>
+              }
+            >
+              
+            </Tab>
+*/}
+            <Tab
+              key="releasedOwnNFTsLog"
+              title={
+                <div className="flex items-center space-x-2">
+                  <RemoveShoppingCart/>
+                  <span>リリース履歴</span>
+                  <Chip size="sm" variant="faded">
+                    {isLoadingB ? (<Spinner size="sm" color="primary"/>) : (releasedViewListNFTs.length)}
+                  </Chip>
+                </div>
+              }
+              >
+              {/* カード表示 */}
+              <PageNftCords list={releasedViewListNFTs} />
+            </Tab>
 
+            <Tab
+              key="transactionDetailsLog"
+              title={
+                <div className="flex items-center space-x-2">
+                  <CheckbookOutline/>
+                  <span>入出金取引明細</span>
+                  <Chip size="sm" variant="faded">
+                    {transactionDetailsLog.length}
+                  </Chip>
+                </div>
+              }
+              >
+              {/* テーブル表示 */}
+              <BcLogTable logs={transactionDetailsLog} />
+            </Tab>
+            
+          </Tabs>
+        </div>
       </section>
     </DefaultLayout>
     </WalletProvider>

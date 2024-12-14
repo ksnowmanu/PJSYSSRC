@@ -1,5 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import sharp from 'sharp';
+//import imagemin from 'imagemin';
+//import imageminGifsicle from 'imagemin-gifsicle';
 import { fetchCustom } from "../api/ipfs";
 
 export default async function Handler(
@@ -10,35 +12,40 @@ export default async function Handler(
     if (!url) return res.status(400).json({ error: 'Image URL is required' });
     if (!type) return res.status(400).json({ error: 'Image Type is required' });
 
-    let response: Response | undefined; // リソースを初期化
+    //let response: Response | undefined; // リソースを初期化
     try {
       const urlString: string = url as string;
       const typeString: string = type as string;
 
-      // http/ipfsに合わせてfetchCustom内で適切にfetch
-      const ipfsResponse = await fetchCustom(urlString, 1);
-      if (!ipfsResponse) return res.status(500).json({ error: 'Failed to fetch image from IPFS' });
+      // base64データの場合、URLにbase64データが格納されている
+      if (typeString === 'base64') {
+        const blob = await Base64ToBlob(urlString);
+        const arrayBuffer = await blob.arrayBuffer();
+        const bufferResize = await resizeImage(Buffer.from(arrayBuffer), blob.type); // リサイズ
 
-      response = ipfsResponse;
-      const buffer = await response.arrayBuffer();
+        res.setHeader('Content-Type', blob.type); // MIMEタイプをヘッダーに設定
+        res.send(bufferResize); // ArrayBufferをBufferに変換して送信
+        //res.send(Buffer.from(arrayBuffer)); // ArrayBufferをBufferに変換して送信
+      } else {
+        // http/ipfsに合わせてfetchCustom内で適切にfetch
+        const response = await fetchCustom(urlString, 1);
+        if (!response?.ok) throw new Error(`Failed to fetch image from ${urlString}`);
+        const arrayBuffer = await response.arrayBuffer();
 
-      // icon指定 あり：リサイズ＋base64変換、なし：base64変換のみ
-      const base64Image = await resizeImageToBase64(Buffer.from(buffer), typeString);
-      //const base64Image = await resizeImageToBase64(ipfsResponse, typeString);
-      res.status(200).json({ base64Image });
+        // MIMEタイプ設定
+        let mimeType; // 例: 'image/jpeg', 'image/png', 'image/gif'
+        mimeType = response.headers.get('content-type');
+        if (!mimeType) {
+          const blob = await response.blob(); // blobデータから画像形式を判別
+          mimeType = blob.type;
+        }
 
-{/*      
-      // デフォルトタイプ作成
-      let defaultType = 'image/jpeg';
-      if (urlString.endsWith('.png')) defaultType = 'image/png';
-      else if (urlString.endsWith('.gif')) defaultType = 'image/gif';
+        const bufferResize = await resizeImage(Buffer.from(arrayBuffer), mimeType); // リサイズ
 
-      // レスポンス情報セット
-      res.setHeader('Content-Type', response.headers.get('content-type') || defaultType);
-      res.setHeader('Set-Cookie', 'myCookie=testValue; Path=/; HttpOnly; Secure; SameSite=None'); // Set-Cookie (クロスサイト用)
-      res.send(Buffer.from(buffer));
- */}
-
+        // レスポンス情報セット
+        res.setHeader('Content-Type', mimeType);
+        res.send(bufferResize);
+      }
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch image' });
     } finally {
@@ -47,70 +54,55 @@ export default async function Handler(
     }
 }
 
-async function resizeImageToBase64(
-  buffer: Buffer,
-  type: string
-): Promise<string> {
+async function Base64ToBlob(base64String: string) {
+  // Base64ヘッダー部分を分離してMIMEタイプを取得
+  const match = base64String.match(/^data:(.*?);base64,(.*)$/);
+  if (!match) {
+    throw new Error('Invalid base64 string');
+  }
+  const mimeType = match[1]; // MIMEタイプを取得
+  const data = match[2]; // 実際のBase64データ部分
+
+  // Base64データをデコードしてバイナリデータに変換
+  const byteCharacters = atob(data); // Base64デコード
+  const byteNumbers = Array.from(byteCharacters).map((char) => char.charCodeAt(0));
+  const byteArray = new Uint8Array(byteNumbers);
+
+  // Blobを作成
+  return new Blob([byteArray], { type: mimeType });
+}
+
+async function resizeImage(buffer: Buffer, mimeType: string): Promise<Buffer> {
   let width = undefined;
   let height = undefined;
+
+  if (mimeType.toLowerCase().includes("gif")) return buffer;
+{/*一旦gifの圧縮は先送り（うまく動かない）
+  if (mimeType.toLowerCase().includes("gif")) {
+      const compressed = await imagemin.buffer(buffer, {
+        plugins: [
+            imageminGifsicle({
+                optimizationLevel: 1, // 圧縮レベル（1～3）
+                //colors: 256, // 使用する色数
+            }),
+        ],
+    });
+    return compressed;
+  }
+*/}
 
   // 画像メタデータから画像フォーマットを取得
   const metadata = await sharp(buffer).metadata();
   const format = (metadata.format as keyof sharp.FormatEnum) || 'png';
 
-  if (type === 'icon') {
-    width = 300; // アイコンとしてリサイズする場合の幅
-  }
-
+  width = 250; // アイコンとしてリサイズする場合の幅
   const resizedBuffer = await sharp(buffer)
     .resize(width, height)
     .toFormat(format) // 元の画像形式を保持
     .toBuffer();
 
-  // Base64文字列に変換
-  return `data:image/${format};base64,${resizedBuffer.toString('base64')}`;
+  return resizedBuffer;
 
-  {/*
-  // 1. 画像を取得してblobデータとして読み込む
-  const blob = await response.blob();
-
-  // 画像形式を判別するためにMIMEタイプを取得
-  const mimeType = blob.type; // 例: 'image/jpeg', 'image/png', 'image/gif'
-
-  // 2. 画像データをImageオブジェクトに読み込む
-  const img = new Image();
-  img.src = URL.createObjectURL(blob);
-
-  // 3. 画像の読み込み完了を待つ
-  await new Promise<void>((resolve) => {
-    img.onload = () => resolve();
-  });
-
-  // サイズを設定する
-  let targetWidth: number;
-  let targetHeight: number;
-  const { naturalHeight: beforeHeight, naturalWidth: beforeWidth } = img;
-  targetWidth = beforeWidth;
-  targetHeight = beforeHeight;
-  if (type === 'icon') {
-    targetWidth = 200;
-    targetHeight = Math.floor(beforeHeight * (targetWidth / beforeWidth));
-  }
-
-  // 4. Canvasに画像を描画してリサイズする
-  const canvas = document.createElement('canvas');
-  canvas.width = targetWidth;
-  canvas.height = targetHeight;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error("Canvas 2D コンテキストを取得できませんでした。");
-
-  ctx.drawImage(img, 0, 0, beforeWidth, beforeHeight, 0, 0, targetWidth, targetHeight);
-  //ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
-
-  // 5. 画像のMIMEタイプに基づき、適切なフォーマットでBase64を取得
-  const resizedBase64 = canvas.toDataURL(mimeType); // 'image/jpeg', 'image/png', 'image/gif' など
-  
-  return resizedBase64; */}
 }
 
 

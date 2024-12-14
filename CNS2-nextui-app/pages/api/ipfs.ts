@@ -36,7 +36,6 @@ export async function fetchCustom(uri: string, fileType: number): Promise<Respon
   if(uri.startsWith('ipfs')) {
     const pathParts = uri.replace('ipfs://', '').split('/'); // CIDとファイル名を抽出
     const cidString = pathParts[0];
-    //const cid = await decodeCid(cidString); // CID部分(デコードが必要ならデコードも実施)
     const fileName = pathParts[1] || null; // ファイル名（ない場合はnull）
 
     // 各ゲートウェイに対応したURLを生成する関数
@@ -137,30 +136,18 @@ async function fetchWithTimeout(url: string, timeout: number): Promise<Response>
 // ------------------------------------------------------------------
 // 概要：CIDの形式を判定・変換する。デコードが必要な場合はデコード実施。
 // ------------------------------------------------------------------
-async function decodeCid(cid: string) {
-    // CIDを手動解析
-    let cidObject: CID | undefined = undefined;;
-    try {
-      cidObject = CID.parse(cid); // 通常のCID解析
-      return cidObject;
-    } catch (parseError) {
-      console.warn('標準的なCID形式ではありません。異なるエンコード形式を試みます...');
-
-      // 各エンコード形式に対応した処理
-      for (const [name, base] of Object.entries(bases)) {
-        try {
-          console.log(`エンコード形式: ${name}`);
-          const decodedCid = base.decode(cid); // エンコード形式に基づいてデコード
-          cidObject = CID.decode(decodedCid);
-          break; // 成功した場合はループを抜ける
-        } catch (error) {
-          console.warn(`エンコード形式 ${name} ではデコードできませんでした。`);
-        }
-      }
-      if (cidObject === undefined) throw new Error('有効なCIDをデコードできませんでした。');
-      return cidObject;
-    }
-};
+async function checkImageExists(url: string): Promise<boolean> {
+  try {
+    const response = await fetch(url, {
+      method: "HEAD",
+      mode: "cors", // クロスオリジンリクエストの場合は必要
+    });
+    return response.ok && (response.headers.get("content-type")?.startsWith("image/") || false);
+  } catch (error) {
+    console.error("Error checking image:", error);
+    return false; // ネットワークエラーやURLが無効の場合
+  }
+}
 
 // ------------------------------------------------------------------
 // 概要：heliaを使用してファイルCIDをcatする

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
+import NextImage from "next/image";
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/card";
 import { Pagination, PaginationItem, PaginationCursor } from "@nextui-org/pagination";
 import { Image } from "@nextui-org/image";
 import { Button } from "@nextui-org/button";
 import { Link } from "@nextui-org/link";
+import { Divider } from "@nextui-org/divider";
 import {
   TwitterXIcon,
   InstagramIcon,
@@ -14,7 +16,7 @@ import {
   ShopIcon,
 } from "@/components/icons";
 import { ListItem } from '@/pages/api/users'; // ListItem 型の定義をインポート
-import { ListNft } from '@/pages/api/ethers'; // ListNft 型の定義をインポート
+import { ListNft, metaAttribute } from '@/pages/api/ethers'; // ListNft 型の定義をインポート
 import { useNft } from '@/context/nft'; // nft情報を保存してシステム全体で利用するためのcontextを利用する
 import NftModal from "./modal"; // モーダルをインポート
 
@@ -276,13 +278,17 @@ export const PageNftCords = ({ list }: { list: ListNft[] }) => {
 
   return (
     <>
-      <NftCords list={currentNFTs} />
-      <Pagination
-        total={totalPages}   // トータルページ数を指定
-        initialPage={1}
-        page={currentPage}
-        onChange={(page) => setCurrentPage(page)}
-      />
+      <div className="flex flex-col">
+        <NftCords list={currentNFTs} />
+        <div className="flex justify-center mt-4">
+          <Pagination
+            total={totalPages}   // トータルページ数を指定
+            initialPage={1}
+            page={currentPage}
+            onChange={(page) => setCurrentPage(page)}
+          />
+        </div>
+      </div>
     </>
   );
 };
@@ -303,14 +309,18 @@ export const NftCords = ({ list }: { list: ListNft[] }) => {
           {/*<Link href={item.href}>*/}
             <CardBody className="flex flex-rows overflow-visible text-center text-default-500 text-xs lg:text-sm p-0">
               <Image
+                as={NextImage}
                 isZoomed
                 shadow="sm"
                 radius="lg"
-                width="100%"
+                //width="100%"
+                width={180}
+                height={140}
                 alt={item.metaName}
                 className="w-full h-full object-cover"
-                src={item.metaImage64}
+                src={item.metaImageBlobURL}
                 //src={URL.createObjectURL(item.metaImage64)}
+                loading="lazy"
               />
               <b>{item.metaName}</b>
             </CardBody>  
@@ -326,11 +336,21 @@ export const NftCords = ({ list }: { list: ListNft[] }) => {
   )
 };
 
-{/*
-// imageデータ取得
-const getImage = (itemMetaImage: any) => {
-  if (itemMetaImage.startsWith('http') || itemMetaImage.startsWith('ipfs')) {
-    return `/api/image?url=${encodeURIComponent(itemMetaImage)}`;
-  } else return itemMetaImage;
-};
- */}
+export const AttributeCard = ({ attributes }: { attributes: metaAttribute[] }) => {
+  return (
+    <div className="gap-1 grid grid-cols-2 lg:grid-cols-3">
+      {attributes.map((attr, index) => (
+        <Card className="bg-content2 dark:bg-content3">
+          <CardHeader className="flex justify-center items-center p-1">
+            <span className="text-tiny">{attr.trait_type}</span>
+          </CardHeader>
+          <Divider />
+          <CardBody className="flex justify-center items-center">
+            <span className="font-semibold">{attr.value}</span>
+          </CardBody>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
