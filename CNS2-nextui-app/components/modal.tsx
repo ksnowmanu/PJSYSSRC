@@ -23,7 +23,6 @@ interface NftModalProps {
 
 const NftModal = ({ visible, closeModal }: NftModalProps) => {
   const { nftData } = useNft();
-  const externalUrlEtherscan = 'https://etherscan.io/address/';
 
 {/*
   const [blobImage, setBlobImage] = useState<Blob>();  // 表示用Blob画像
@@ -78,11 +77,18 @@ const NftModal = ({ visible, closeModal }: NftModalProps) => {
       }}
     >
       <ModalContent className="h-screen overflow-y-auto">
-        <ModalHeader className="flex justify-between items-center px-4 py-2">
+        <ModalHeader className="flex items-center px-4 py-2">
+          <Image
+            src="Company_noname_logo.png"
+            alt="Company Logo"
+            width={30}
+            height={30}
+            className="mr-2"
+          />
           {nftData && (
             <>
-              <div className="flex flex-row gap-1 pr-4">
-                <div className="text-base truncate">コレクション名 : {nftData.metaName}</div>
+              <div className="flex flex-row gap-1 pl-4 pr-4">
+                <div className="text-base truncate">コレクション詳細</div>
               </div>
             </>
           )}
@@ -130,7 +136,7 @@ const NftModal = ({ visible, closeModal }: NftModalProps) => {
                                 {/* row1：コントラクトアドレス */}
                                 <div className="flex justify-between">
                                   <span className="text-gray-500">Contract Address</span>
-                                  <a href={externalUrlEtherscan + nftData.contractAddress} target="_blank" rel="noopener noreferrer">
+                                  <a href={nftData.contractAddressUrlEtherscan} target="_blank" rel="noopener noreferrer">
                                     <span className="text-blue-600">{nftData.contractAddress.slice(0,6)}...{nftData.contractAddress.slice(-4)}</span>
                                   </a>
                                 </div>
@@ -142,12 +148,21 @@ const NftModal = ({ visible, closeModal }: NftModalProps) => {
                                     onClick={() => openPage(nftData.tokenMetaData)} // onClickで関数を呼び出し
                                     style={{ cursor: "pointer" }}
                                     className="text-blue-600"
-                                  >{nftData.tokenId}</span>
+                                  >
+                                    {nftData.tokenId}
+                                  </span>
                                 </div>
                                 {/* row3：トークン標準 */}
                                 <div className="flex justify-between">
                                   <span className="text-gray-500">Token Standard</span>
                                   <span>{nftData.standard}</span>
+                                </div>
+                                {/* row4：最新transferログのトランザクションハッシュ */}
+                                <div className="flex justify-between">
+                                  <span className="text-gray-500">TransactionHash</span>
+                                  <a href={nftData.transactionHashUrlEtherscan} target="_blank" rel="noopener noreferrer">
+                                    <span className="text-blue-600">{nftData.transactionHash.slice(0,6)}...{nftData.transactionHash.slice(-4)}</span>
+                                  </a>
                                 </div>
                               </div>
                             </AccordionItem>
@@ -160,7 +175,7 @@ const NftModal = ({ visible, closeModal }: NftModalProps) => {
                     {/* 画面右側 */}
                     <div className="space-y-6">
                       <div>
-                        <h1 className="text-3xl font-bold">Chromie Squiggle #333000260</h1>
+                        <h1 className="text-3xl font-bold">{nftData.metaName}</h1>
                         <div className="flex items-center space-x-2 mt-2">
                           <span className="text-gray-600">Owned by</span>
                           <span className="text-blue-600 font-medium">Owner123</span>

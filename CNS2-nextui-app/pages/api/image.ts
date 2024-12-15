@@ -95,7 +95,7 @@ async function resizeImage(buffer: Buffer, mimeType: string): Promise<Buffer> {
   const metadata = await sharp(buffer).metadata();
   const format = (metadata.format as keyof sharp.FormatEnum) || 'png';
 
-  width = 250; // アイコンとしてリサイズする場合の幅
+  width = 260; // アイコンとしてリサイズする場合の幅
   const resizedBuffer = await sharp(buffer)
     .resize(width, height)
     .toFormat(format) // 元の画像形式を保持

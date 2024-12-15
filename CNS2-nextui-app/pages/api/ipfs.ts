@@ -49,7 +49,7 @@ export async function fetchCustom(uri: string, fileType: number): Promise<Respon
     console.log(`fetch from any gateway:${fileType}:${urls}`);
     
     try {
-      const requests = urls.map(url => LimitedFetch(url,5000));
+      const requests = urls.map(url => LimitedFetch(url,4000));
       const result = await Promise.race(requests); // 最も早く応答したゲートウェイからデータを取得
       if(!result.ok) throw new Error(`Failed to fetch from any gateway: ${result.statusText}`);
       response = result;
@@ -148,6 +148,21 @@ async function checkImageExists(url: string): Promise<boolean> {
     return false; // ネットワークエラーやURLが無効の場合
   }
 }
+
+// ------------------------------------------------------------------
+// 概要：heliaを使用してファイルCIDをcatする
+// ------------------------------------------------------------------
+async function fsCatExistCheckIPFS(cid: CID) {
+  try {
+    const helia = await createHelia(); // Heliaノードの初期化
+    const fs = unixfs(helia); // unixfsインスタンスを作成
+    const stream = fs.cat(cid);
+    return true;
+  } catch (error) {
+    console.error(`Error fetching CID ${cid}: ${error}`);
+    return false; // エラーが発生した場合は存在しない
+  }
+};
 
 // ------------------------------------------------------------------
 // 概要：heliaを使用してファイルCIDをcatする

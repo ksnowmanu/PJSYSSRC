@@ -5,6 +5,7 @@ import { Pagination, PaginationItem, PaginationCursor } from "@nextui-org/pagina
 import { Image } from "@nextui-org/image";
 import { Button } from "@nextui-org/button";
 import { Link } from "@nextui-org/link";
+import { Spinner } from "@nextui-org/spinner";
 import { Divider } from "@nextui-org/divider";
 import {
   TwitterXIcon,
@@ -305,23 +306,37 @@ export const NftCords = ({ list }: { list: ListNft[] }) => {
   return(
     <div className="gap-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
       {list.map((item, index) => (
+        item && (
         <Card className="w-full" shadow="sm" key={index} isPressable onPress={() => openModal(item)}> {/*クリック時にNFT詳細画面を起動*/}
           {/*<Link href={item.href}>*/}
             <CardBody className="flex flex-rows overflow-visible text-center text-default-500 text-xs lg:text-sm p-0">
-              <Image
-                as={NextImage}
-                isZoomed
-                shadow="sm"
-                radius="lg"
-                //width="100%"
-                width={180}
-                height={140}
-                alt={item.metaName}
-                className="w-full h-full object-cover"
-                src={item.metaImageBlobURL}
-                //src={URL.createObjectURL(item.metaImage64)}
-                loading="lazy"
-              />
+            {item.metaImageBlobURL ? (
+              <>
+                <Image
+                  as={NextImage}
+                  isZoomed
+                  shadow="sm"
+                  radius="lg"
+                  //width="100%"
+                  width={240}
+                  height={180}
+                  alt={item.metaName}
+                  className="w-full h-full object-cover"
+                  src={item.metaImageBlobURL}
+                  //src={URL.createObjectURL(item.metaImage64)}
+                  loading="lazy"
+                />
+                {item.tokenIOType === "mint" && (
+                  <div className="absolute top-2 left-2 z-10">
+                    <h4 className="text-white/90 font-medium text-center text-2xl bg-black/60 rounded-full px-2">mint!</h4>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="w-full h-[180px] flex items-center justify-center">
+                <Spinner color="primary" size="lg" />
+              </div>
+            )}
               <b>{item.metaName}</b>
             </CardBody>  
           {/*</Link>*/}
@@ -329,7 +344,7 @@ export const NftCords = ({ list }: { list: ListNft[] }) => {
               <b>取得価格:{item.tokenValue}</b>
             </CardFooter>
           </Card>
-      ))}
+      )))}
             {/* モーダルコンポーネントを表示 */}
             <NftModal visible={visible} closeModal={closeModal} />
     </div>

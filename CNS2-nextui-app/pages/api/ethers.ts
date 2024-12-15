@@ -20,6 +20,9 @@ const ercTransferEventSignature = ethers.id("Transfer(address,address,uint256)")
 const erc1155TransferSingleEventSignature = "0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62";   // ethers.idが正しく動作しないので直接シグネチャを指定 ERC1155 TransferSingle
 const erc1155TransferBatchEventSignature = ethers.id("TransferBatch(address operator, address from, address to, uint256[] ids, uint256[] values)"); // ERC1155 TransferBatch
 
+// ゼロアドレス
+const zeroAdd = '0x0000000000000000000000000000000000000000';
+
 // コントラクト設定
 const abi = [
   "function tokenURI(uint256 tokenId) external view returns (string)", // ERC721
@@ -47,6 +50,10 @@ const openSeaAPIOptions = {
     'Content-Type': 'application/json',
   }
 };
+
+// Etherscanリンクパス
+const externalUrlEtherscanAdr = 'https://etherscan.io/address/';
+const externalUrlEtherscanTran = 'https://etherscan.io/tx/';
 
 // ログフィルターの定義
 // 最新ログ
@@ -89,14 +96,17 @@ const filterERC1155 = (EventSignature: string, fromAddress: string | null, toAdd
 export type bcLog = {
   key: string;
   eventSignature: string;
-  tokenIO: string;
+  tokenIO: string;      // In,Out
+  tokenIOType: string;  // mint,burn,transfer(通常)を識別
   contractAddress: string;
+  contractAddressUrlEtherscan: string;
   standard: string;
   tokenId: string;
   fromAddress: ethers.Result;
   toAddress: ethers.Result;
   data: string;
   transactionHash: string;
+  transactionHashUrlEtherscan: string;
   blockNumber: number;
 }
 
@@ -105,6 +115,20 @@ export type bcLogErc20 = bcLog & {
   tokenSymbol: string;
 };
 
+// ListNft 型の定義
+export type ListNft = bcLog & {
+  tokenValue: string;
+  tokenURI: string;
+  tokenMetaData: string;
+  metadataStatus: string;
+  metaName: string;
+  metaDescription: string;
+  metaExternalUrl: string;
+  metaImageURL: string;
+  metaImageBlobURL: string;
+  metaAttributes: metaAttribute[];
+};
+{/*
 // ListNft 型の定義
 export type ListNft = {
   key: string;
@@ -126,8 +150,9 @@ export type ListNft = {
   metaImageBlobURL: string;
   metaAttributes: metaAttribute[];
 };
+ */}
 
-// ListNft 型の定義
+// metaAttribute 型の定義
 export type metaAttribute = {
   trait_type: string;
   value: string;
@@ -145,16 +170,16 @@ export async function addCurrencyInfoToErc20TokenLogs(tokenLogs: bcLog[]): Promi
   const results: bcLogErc20[] = [];
   for (const tokenLog of tokenLogs) {
     const { contractAddress } = tokenLog;
-    const contract = new ethers.Contract(contractAddress, abi, provider);
+    //const contract = new ethers.Contract(contractAddress, abi, provider);
     
     // トークン情報を取得
-    const tokenSymbol = await contract.symbol();
+    //const tokenSymbol = await contract.symbol();
+    const tokenSymbol = 'dumy'
     results.push({
       ...tokenLog,
       tokenSymbol: tokenSymbol,
     });
   }
-  //await delay(10); // プロバイダ(infura)側
   return results as bcLogErc20[];
 }
 
@@ -167,7 +192,7 @@ export async function fetchNFTMetas(ownedTokens: bcLog[]): Promise<ListNft[]> {
       return await getTokenMetadata(ownedToken);
     })
   );
-  await delay(10); // プロバイダ(infura)側
+  //await delay(10); // プロバイダ(infura)側
   return batchResults.filter(meta => meta !== null) as ListNft[];
 }
 
@@ -273,6 +298,24 @@ async function getTokenMetadata(ownedToken: bcLog): Promise<ListNft | null> {
 
   // 取得したメタデータをListNft型に変換して返す
   const tokenMetadata: ListNft = {
+    ...ownedToken,
+    tokenValue: data,
+    tokenURI: tokenURI,
+    tokenMetaData: JSON.stringify(metadata),
+    metadataStatus: metadataStatus,
+    metaName: metaname || '',
+    metaDescription: metadata.description || '',
+    metaExternalUrl: metaExternalUrl || '',
+    metaImageURL: metaImageURL || '',
+    metaImageBlobURL: metaImageBlobURL || '',
+    metaAttributes: metadata.attributes ? metadata.attributes.map((attr: any) => ({
+      trait_type: attr.trait_type,
+      value: attr.value
+    })) : []
+  }
+{/*
+  // 取得したメタデータをListNft型に変換して返す
+  const tokenMetadata: ListNft = {
     key: key,
     contractAddress: contractAddress,
     standard: standard,
@@ -296,6 +339,7 @@ async function getTokenMetadata(ownedToken: bcLog): Promise<ListNft | null> {
       value: attr.value
     })) : []
   }
+   */}
   return tokenMetadata;
 
   } catch (error) {
@@ -353,27 +397,30 @@ export async function getAllTransferLogs(walletAddress: string) {
   const retTransferLogs: bcLog[] = await Promise.all(
     combinedTransferLogs.map(async (log) => {
       const contractAddress = log.address;  // コントラクトアドレスを抽出
+      const contractAddressUrlEtherscan = externalUrlEtherscanAdr + contractAddress;
       const standard = log.data === "0x"? 'ERC721': 'ERC20';
       const eventSignature = log.topics[0]? log.topics[0]: '';  // イベントシグネチャ
       const fromAddress = log.topics[1]? abiCoder.decode(["address"], log.topics[1])[0]: '';  // 転送元を取得
       const toAddress = log.topics[2]? abiCoder.decode(["address"], log.topics[2])[0]: '';  // 転送先を取得
       const tokenId = log.topics[3]? abiCoder.decode(["uint256"], log.topics[3])[0].toString(): ''; // トークンIDをデコード
       // 金額を wad ⇒ ETH へ変換する
-      const ethValue = log.data === "0x"? '0': abiCoder.decode(["uint256"], log.data)[0].toString();
-      const data = (Number(ethValue) / Math.pow(10, 18)).toString(); // 10^18で割る
-      //const data = log.data === "0x"? '0': abiCoder.decode(["uint256"], log.data)[0].toString();
+      //const ethValue = log.data === "0x"? '0': abiCoder.decode(["uint256"], log.data)[0].toString();
+      //const data = (Number(ethValue) / Math.pow(10, 18)).toString(); // 10^18で割る
+      const data = log.data === "0x"? '0': abiCoder.decode(["uint256"], log.data)[0].toString();
       const transactionHash = log.transactionHash; // トランザクションハッシュを取得
+      const transactionHashUrlEtherscan = externalUrlEtherscanTran + transactionHash;
       const blockNumber = log.blockNumber; // ブロック番号
       const key = `${contractAddress}-${tokenId}`;  // キーを結合して作成
       const tokenIO = toAddress === walletAddress? 'IN': 'OUT';
+      const tokenIOType = fromAddress === zeroAdd? 'mint': toAddress === zeroAdd? 'burn': 'transfer';
 
-      return {key, eventSignature, tokenIO, contractAddress, standard, tokenId, fromAddress, toAddress, data, transactionHash, blockNumber};
+      return {key, eventSignature, tokenIO, tokenIOType, contractAddress, contractAddressUrlEtherscan, standard, tokenId, fromAddress, toAddress, data, transactionHash, transactionHashUrlEtherscan, blockNumber};
     })
   );
-  console.log(`全transferLogs件数: ${retTransferLogs.length}`);
-  retTransferLogs.forEach((log, index) => {
-    console.log(`ログ ${index}: ${log.contractAddress},${log.standard},${log.tokenIO},${log.fromAddress},${log.toAddress},${log.tokenId},${log.data},${log.transactionHash},${log.blockNumber}`);
-  });
+  //console.log(`全transferLogs件数: ${retTransferLogs.length}`);
+  //retTransferLogs.forEach((log, index) => {
+  //  console.log(`ログ ${index}: ${log.contractAddress},${log.standard},${log.tokenIO},${log.fromAddress},${log.toAddress},${log.tokenId},${log.data},${log.transactionHash},${log.blockNumber}`);
+  //});
   
   return retTransferLogs;
 }
@@ -410,6 +457,7 @@ export async function getTransferLogs1155(walletAddress: string) {
     combinedTransferSingleLogs.map(async (log) => {
       // ログを取得してコントラクトアドレスとトークンIDを抽出
       const contractAddress = log.address;
+      const contractAddressUrlEtherscan = externalUrlEtherscanAdr + contractAddress;
       const standard = "ERC1155";
       const eventSignature = log.topics[0]? log.topics[0]: '';  // イベントシグネチャ
       const fromAddress = abiCoder.decode(["address"], log.topics[2])[0];  // 転送先
@@ -417,17 +465,19 @@ export async function getTransferLogs1155(walletAddress: string) {
       const tokenId = abiCoder.decode(["uint256", "uint256"], log.data)[0].toString();
       const data = '';
       const transactionHash = log.transactionHash; // トランザクションハッシュを取得
+      const transactionHashUrlEtherscan = externalUrlEtherscanTran + transactionHash;
       const blockNumber = log.blockNumber; // ブロック番号
       const key = `${contractAddress}-${tokenId}`;
       const tokenIO = toAddress === walletAddress? 'IN': 'OUT';
+      const tokenIOType = fromAddress === zeroAdd? 'mint': toAddress === zeroAdd? 'burn': 'transfer';
 
-      return {key, eventSignature, tokenIO, contractAddress, standard, tokenId, fromAddress, toAddress, data, transactionHash, blockNumber};
+      return {key, eventSignature, tokenIO, tokenIOType, contractAddress, contractAddressUrlEtherscan, standard, tokenId, fromAddress, toAddress, data, transactionHash, transactionHashUrlEtherscan, blockNumber};
     })
   );
-  console.log(`全transferSingleLogs件数: ${retTransferSingleLogs.length}`);
-  retTransferSingleLogs.forEach((log, index) => {
-    console.log(`ログ ${index}: ${log.contractAddress},${log.standard},${log.tokenIO},${log.fromAddress},${log.toAddress},${log.tokenId},${log.data},${log.transactionHash},${log.blockNumber}`);
-  });
+  //console.log(`全transferSingleLogs件数: ${retTransferSingleLogs.length}`);
+  //retTransferSingleLogs.forEach((log, index) => {
+  //  console.log(`ログ ${index}: ${log.contractAddress},${log.standard},${log.tokenIO},${log.fromAddress},${log.toAddress},${log.tokenId},${log.data},${log.transactionHash},${log.blockNumber}`);
+  //});
 
   // 3.ERC1155 : TransferBatch イベントのログ取得
   {/*
@@ -451,89 +501,6 @@ export async function getTransferLogs1155(walletAddress: string) {
 //  combinedTokenOwnershipLatest : 
 // ------------------------------------------------------------------
 export async function getNFTTransferLogs(walletAddress: string, logFilter: string) {
-  // ウォレットアドレスを32バイトにゼロパディングする
-  const paddedAddress = "0x" + getAddress(walletAddress).slice(2).padStart(64, '0');
-  console.log(`ウォレットアドレスの0pad: ${paddedAddress}`);
-  console.log(`ERC721イベントシグネチャ: ${ercTransferEventSignature}`);
-
-  // ログ確認用　アドレスのウォレット判定
-  const code = await provider.getCode(walletAddress);
-  code === "0x" ? console.log("This is walletAddress") : console.log("This is contractAddress");
-
-  // Transferイベント設定 0:取得ログ 1:放出ログ => ERC721 and ERC1155(Single & Batch)
-  let filter;
-  let filterSingle;
-  let filterBatch;
-  if (logFilter === "0") {
-    console.log(`0:取得ログ`);
-    filter       = filterERC721or20(ercTransferEventSignature, null, paddedAddress, 0);         // nft取得
-    filterSingle = filterERC1155(erc1155TransferSingleEventSignature, null, paddedAddress, 0); // nft取得 Single
-    //filterBatch = filterERC1155(erc1155TransferBatchEventSignature,  null, paddedAddress, 0); // nft取得 Batch
-  } else {
-    console.log(`1:放出ログ`);
-    filter       = filterERC721or20(ercTransferEventSignature, paddedAddress, null, 0);         // nft手放す
-    filterSingle = filterERC1155(erc1155TransferSingleEventSignature, paddedAddress, null, 0); // nft手放す Single
-    //filterBatch = filterERC1155(erc1155TransferBatchEventSignature,  paddedAddress, null, 0); // nft手放す Batch
-  }
-
-  // 1.ERC721 : コントラクトアドレスとトークンIDを結合したデータをmapで作成
-  const TransferLogs = await provider.getLogs(filter); // ログを指定ブロック範囲内で取得
-  const logsERC721 = TransferLogs.filter((log) => {
-    return log.data === "0x"; // ERC721は通常、log.dataが空（0x）である
-  });
-
-  console.log("★★エラー探索: 全topics:");
-  logsERC721.forEach((log, index) => {
-    console.log(`ログ ${index}: ${log.topics},${log.blockNumber}`);
-  });
-
-  const tokenOwnershipERC721: bcLog[] = await Promise.all(
-    logsERC721.map(async (log) => {
-      // ログを取得してコントラクトアドレスとトークンIDを抽出
-      const contractAddress = log.address;  // コントラクトアドレスを抽出
-      const standard = "ERC721";
-      const eventSignature = log.topics[0]? log.topics[0]: '';  // イベントシグネチャ
-      const fromAddress = abiCoder.decode(["address"], log.topics[1])[0];  // 転送元を取得
-      const toAddress = abiCoder.decode(["address"], log.topics[2])[0];  // 転送先を取得
-      const tokenId = abiCoder.decode(["uint256"], log.topics[3])[0].toString(); // トークンIDをデコード
-      const data = '';
-      const transactionHash = log.transactionHash; // トランザクションハッシュを取得
-      const blockNumber = log.blockNumber; // ブロック番号
-      const key = `${contractAddress}-${tokenId}`;  // キーを結合して作成
-      const tokenIO = logFilter === '0'? 'IN': 'OUT';
-
-      return {key, eventSignature, tokenIO, contractAddress, standard, tokenId, fromAddress, toAddress, data, transactionHash, blockNumber};
-    })
-  );
-  console.log(`1.ERC721トークンの数: ${tokenOwnershipERC721.length}`);
-
-  // 2.ERC1155 : TransferSingle イベントのログ取得
-  const logsERC1155Single = await provider.getLogs(filterSingle);
-  const tokenOwnershipERC1155single: bcLog[] = await Promise.all(
-    logsERC1155Single.map(async (log) => {
-      // ログを取得してコントラクトアドレスとトークンIDを抽出
-      const contractAddress = log.address;
-      const standard = "ERC1155";
-      const decodedData = abiCoder.decode(["uint256", "uint256"], log.data);
-      const tokenId = decodedData[0].toString();
-      const eventSignature = log.topics[0]? log.topics[0]: '';  // イベントシグネチャ
-      const fromAddress = abiCoder.decode(["address"], log.topics[2])[0];  // 転送先
-      const toAddress = abiCoder.decode(["address"], log.topics[3])[0];  // 転送先を取得
-      const data = '';
-      const transactionHash = log.transactionHash; // トランザクションハッシュを取得
-      const blockNumber = log.blockNumber; // ブロック番号
-      const key = `${contractAddress}-${tokenId}`;
-      const tokenIO = logFilter === '0'? 'IN': 'OUT';
-
-      return {key, eventSignature, tokenIO, contractAddress, standard, tokenId, fromAddress, toAddress, data, transactionHash, blockNumber};
-    })
-  );
-  console.log(`2.ERC1155トークンの数: ${tokenOwnershipERC1155single.length}`);
-
-  // 3.ERC1155 : TransferBatch イベントのログ取得
-  {/*
-    ★★2024/09/22時点で当該ログを発見できないためテストできず、発見次第実装とする★★
- 
 
   // ERC721 と ERC1155 からnullを除外してデータを合体
   const filteredTokenOwnershipERC721 = tokenOwnershipERC721.filter(entry => entry !== null);
@@ -543,20 +510,22 @@ export async function getNFTTransferLogs(walletAddress: string, logFilter: strin
   // ログの重複を排除（厳密には最後に取引したログだけを残す）
   const combinedTokenOwnershipLatest = removeDuplicatesByLargestKey(combinedTokenOwnership);
 
-  return combinedTokenOwnershipLatest;
 }
 */}
 
 // ------------------------------------------------------------------
 // (Log用)配列キーの重複がある際に要素番号が大きいほうが優先され重複が排除されたデータを返す
+// 条件：Mapにkeyが存在しない or keyがあるならitemとブロック番号を比較しitemの方が大きい場合
 // ------------------------------------------------------------------
-function removeDuplicatesByLargestKey(arr: bcLog[]): bcLog[] {
-  const keyMap: Map<string, bcLog[]> = new Map();
+export function removeDuplicatesByLargestKey(arr: bcLog[]): bcLog[] {
+  const keyMap: Map<string, bcLog> = new Map();
   arr.forEach(item => {
-    const { key } = item;
-    keyMap.set(key, [item]);
+    const { key, blockNumber } = item;
+    if (!keyMap.has(key) || (keyMap.get(key)!.blockNumber < blockNumber)) {
+      keyMap.set(key, item); // ブロック番号が大きい方をセット
+    }
   });
-  return Array.from(keyMap.values()).flat(); // マップから値を抽出してフラット化して返す
+  return Array.from(keyMap.values()); // Mapの値を配列にして返す
 }
 
 // ------------------------------------------------------------------
