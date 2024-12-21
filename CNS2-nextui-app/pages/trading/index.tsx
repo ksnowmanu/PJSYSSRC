@@ -3,9 +3,8 @@ import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
 import { useNft } from '@/context/nft'; // nft情報を保存してシステム全体で利用するためのcontextを利用する
 
-const { nftData } = useNft();
-
 export default function TradingPage() {
+  const { nftData } = useNft();
   if (!nftData) {
     return <div>No NFT data found</div>;
   }
