@@ -94,10 +94,10 @@ export const Tables = () => {
                     </Button>
                   </DropdownTrigger>
                   <DropdownMenu>
-                    <DropdownItem startContent={<ShopIcon/>}>HOME</DropdownItem>
-                    <DropdownItem startContent={<TwitterXIcon/>}>X</DropdownItem>
-                    <DropdownItem startContent={<FacebookIcon/>}>facebook</DropdownItem>
-                    <DropdownItem startContent={<YoutubeIcon/>}>Youtube</DropdownItem>
+                    <DropdownItem key="home" startContent={<ShopIcon/>}>HOME</DropdownItem>
+                    <DropdownItem key="x" startContent={<TwitterXIcon/>}>X</DropdownItem>
+                    <DropdownItem key="facebook" startContent={<FacebookIcon/>}>facebook</DropdownItem>
+                    <DropdownItem key="youtube" startContent={<YoutubeIcon/>}>Youtube</DropdownItem>
                   </DropdownMenu>
                 </Dropdown>
               </div>

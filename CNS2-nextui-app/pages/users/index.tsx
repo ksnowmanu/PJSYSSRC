@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Button } from "@nextui-org/button";
-import { Avatar } from "@nextui-org/avatar"
-import { Link } from "@nextui-org/react";
 import DefaultLayout from "@/layouts/default";
 import { title } from "@/components/primitives";
 import { WalletProvider, useWallet } from "@/context/user";

@@ -2,8 +2,6 @@ import { Link } from "@nextui-org/link";
 import { Snippet } from "@nextui-org/snippet";
 import { Code } from "@nextui-org/code";
 import { button as buttonStyles } from "@nextui-org/theme";
-import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/card";
-import { Image } from "@nextui-org/image";
 import { Button } from "@nextui-org/button";
 import { Tabs, Tab } from "@nextui-org/tabs";
 import {
