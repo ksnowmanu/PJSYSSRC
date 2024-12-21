@@ -11,8 +11,6 @@
 	"dependencies": {
 		"@ethersproject/providers": "^5.7.2",
 		"@helia/unixfs": "^3.0.7",
-		"@nextui-org/accordion": "^2.0.40",
-		"@nextui-org/avatar": "^2.2.4",
 		"@nextui-org/button": "2.0.37",
 		"@nextui-org/card": "^2.2.7",
 		"@nextui-org/code": "2.0.32",
@@ -65,7 +63,7 @@
 		"@typescript-eslint/eslint-plugin": "7.2.0",
 		"@typescript-eslint/parser": "7.2.0",
 		"autoprefixer": "10.4.19",
-		"eslint": "^8.57.0",
+		"eslint": "^9.17.0",
 		"eslint-config-prettier": "^8.2.0",
 		"eslint-plugin-import": "^2.26.0",
 		"eslint-plugin-jsx-a11y": "^6.4.1",
