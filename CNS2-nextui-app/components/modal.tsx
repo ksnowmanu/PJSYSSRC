@@ -177,7 +177,7 @@ const NftModal = ({ visible, closeModal }: NftModalProps) => {
                       <div>
                         <h1 className="text-3xl font-bold">{nftData.metaName}</h1>
                         <div className="flex items-center space-x-2 mt-2">
-                          <span className="text-gray-600">Owned by</span>
+                          <span className="text-gray-600">Owned by :</span>
                           <span className="text-blue-600 font-medium">{nftData.toAddress}</span>
                         </div>
                       </div>
