@@ -1,8 +1,24 @@
 import React from "react";
-import {Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, User, Chip, Tooltip, ChipProps, getKeyValue} from "@nextui-org/react";
+import {
+  Table, 
+  TableHeader, 
+  TableColumn, 
+  TableBody, 
+  TableRow, 
+  TableCell, 
+  User, 
+  Chip, 
+  Tooltip, 
+  ChipProps, 
+  getKeyValue,
+  DropdownTrigger, 
+  Dropdown, 
+  DropdownMenu, 
+  DropdownItem, 
+} from "@nextui-org/react";
+
 import {columns, users} from "./data";
 import { Link } from "@nextui-org/link";
-import {DropdownTrigger, Dropdown, DropdownMenu, DropdownItem} from "@nextui-org/dropdown"
 import {Button} from "@nextui-org/button"
 import {
     ShopIcon,

@@ -15,11 +15,9 @@ import { link as linkStyles } from "@nextui-org/theme";
 import NextLink from "next/link";
 import clsx from "clsx";
 
-import { DropdownItem, DropdownTrigger, Dropdown, DropdownMenu } from "@nextui-org/dropdown";
 import { Avatar } from "@nextui-org/avatar"
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@nextui-org/modal"
-import { useDisclosure} from "@nextui-org/react";
-
+import { useDisclosure, DropdownItem, DropdownTrigger, Dropdown, DropdownMenu } from "@nextui-org/react";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";

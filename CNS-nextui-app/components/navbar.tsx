@@ -33,7 +33,7 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem
-} from "@nextui-org/dropdown";
+} from "@nextui-org/react";
 import { Avatar } from "@nextui-org/avatar";
 import { Button } from "@nextui-org/button";
 import { Kbd } from "@nextui-org/kbd";
